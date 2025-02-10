@@ -109,19 +109,6 @@ public class UserController {
         }
     }
 
-    // get information about my user
-    @GetMapping("/profile/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
-        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
-        User existingUser = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Пользователя не существует!"));
-
-        if (!existingUser.getLogin().equals(currentUsername)) {
-            throw new RuntimeException("Вы можете обновлять только информацию о своем профиле!");
-        }
-        return ResponseEntity.ok(existingUser);
-    }
-
     // change in your profile (not @Valid else drop)
     @PutMapping("/profile/{id}")
     public ResponseEntity<Map<String, Object>> updateOwnProfile(@PathVariable Long id, @RequestBody User user) {
@@ -183,6 +170,19 @@ public class UserController {
 
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
+    }
+
+    // get information about my user
+    @GetMapping("/profile/{id}")
+    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        User existingUser = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Пользователя не существует!"));
+
+        if (!existingUser.getLogin().equals(currentUsername)) {
+            throw new RuntimeException("Вы можете обновлять только информацию о своем профиле!");
+        }
+        return ResponseEntity.ok(existingUser);
     }
 
     // delete user rest api
