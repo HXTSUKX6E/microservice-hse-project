@@ -10,7 +10,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class CompanyOneDto {
+public class CompanyRequest {
     private long company_id;
     private String inn;
     private String kpp;
@@ -22,7 +22,7 @@ public class CompanyOneDto {
     @JsonIgnoreProperties({"company"})
     private List<Vacancy> vacancies;
 
-    public CompanyOneDto(Long company_id, String inn, String kpp, String ogrn, String address, String director, Date date_reg, Boolean is_accepted, List<Vacancy> vacancies) {
+    public CompanyRequest(Long company_id, String inn, String kpp, String ogrn, String address, String director, Date date_reg, Boolean is_accepted, List<Vacancy> vacancies) {
         this.company_id = company_id;
         this.inn = inn;
         this.kpp = kpp;

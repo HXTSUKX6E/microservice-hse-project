@@ -82,12 +82,14 @@ public class CompanyController {
 
     public CompanyOneDto getCompanyDTO(Company company) {
         return new CompanyOneDto(
+                company.getCompany_id(),
                 company.getInn(),
                 company.getKpp(),
                 company.getOgrn(),
                 company.getAddress(),
                 company.getDirector(),
                 company.getDate_reg(),
+                company.getIs_accepted(),
                 company.getVacancies());
     }
 }
