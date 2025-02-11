@@ -30,7 +30,7 @@ public class VacancyService {
     public VacancyService(RestTemplate restTemplate, VacancyRepository vacancyRepository, WebClient.Builder webClientBuilder) {
         this.restTemplate = restTemplate;
         this.vacancyRepository = vacancyRepository;
-        this.webClient = webClientBuilder.baseUrl("http://localhost:8083").build();
+        this.webClient = webClientBuilder.baseUrl("http://company-service:8083").build();
     }
     public Vacancy createVacancy2(VacancyDto vacancyDto) {
         long companyId = vacancyDto.getCompany_id();
