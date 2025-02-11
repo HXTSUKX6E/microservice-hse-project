@@ -21,8 +21,8 @@ jobs:
           POSTGRES_PASSWORD: 12345678
         ports:
           - 5432:5432
-        volumes:
-          - postgres_data:/var/lib/postgresql/data
+        # volumes:  # Уберите эту секцию из workflow
+        #   - postgres_data:/var/lib/postgresql/data  # Это также уберите
 
       pgadmin:
         image: dpage/pgadmin4
@@ -45,11 +45,8 @@ jobs:
 
     - name: Wait for services to be ready
       run: |
-        sleep 30
+        sleep 30  # Дайте время для инициализации баз данных и сервисов
 
     - name: Stop and remove services
       run: |
         docker-compose -f ./docker-compose.yml down
-
-volumes:
-  postgres_data:
