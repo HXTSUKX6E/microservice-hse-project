@@ -12,6 +12,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
 
 @EnableGlobalMethodSecurity(prePostEnabled = true)  // Включает поддержку @PreAuthorize
@@ -20,6 +21,10 @@ import org.springframework.web.client.RestTemplate;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    @Bean
+    public WebClient.Builder webClientBuilder() {
+        return WebClient.builder();
+    }
     @Bean
     public BCryptPasswordEncoder BCryptPasswordEncoder() {
         return new BCryptPasswordEncoder(); // Используйте BCrypt для хеширования паролей

@@ -1,5 +1,6 @@
 package net.javaguides.springboot.exception;
 
+import lombok.Getter;
 import net.javaguides.springboot.model.AuthResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -8,12 +9,25 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.reactive.function.client.WebClientException;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+    @Getter
+    public static class CompanyNotApprovedException extends RuntimeException {
+        private final HttpStatus status;
+
+        public CompanyNotApprovedException(String message, HttpStatus status) {
+            super(message);
+            this.status = status;
+        }
+
+    }
 
     // Обработка ResourceNotFoundException
     @ExceptionHandler(ResourceNotFoundException.class)
@@ -44,6 +58,18 @@ public class GlobalExceptionHandler {
         AuthResponse response = new AuthResponse(false, "no access");
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
+    //for web-client error
+    @ExceptionHandler(WebClientRequestException.class)
+    public ResponseEntity<ErrorResponse> handleWebClientRequestException(WebClientRequestException ex) {
+        // Создаем объект ошибки с нужными данными
+        ErrorResponse errorResponse = new ErrorResponse(
+                false,
+                "Ошибка соеденения с внешним сервисом!"
+        );
+
+        // Возвращаем объект в формате JSON с кодом ошибки 500
+        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
@@ -71,20 +97,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(CompanyNotApprovedException.class)
     public ResponseEntity<Map<String, Object>> handleCompanyNotApprovedException(CompanyNotApprovedException ex) {
         Map<String, Object> errorResponse = new HashMap<>();
-        errorResponse.put("error", "Невозможно добавить вакансию! Компания не одобрена.");
         errorResponse.put("message", ex.getMessage());
-
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
-        Map<String, Object> errorResponse = new HashMap<>();
-        errorResponse.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
-        errorResponse.put("error", "Internal Server Error");
-        errorResponse.put("message", ex.getMessage());
-
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(errorResponse, ex.getStatus());
     }
 
 }

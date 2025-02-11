@@ -34,7 +34,7 @@ public class VacancyController {
     @PreAuthorize("hasRole('ROLE_3') || hasRole('ROLE_1')")
     @PostMapping("/vacancy")
     public ResponseEntity<Vacancy> createVacancy(@RequestBody @Valid VacancyDto vacancyDto) {
-        Vacancy vacancy = vacancyService.createVacancy(vacancyDto);
+        Vacancy vacancy = vacancyService.createVacancy2(vacancyDto);
         return ResponseEntity.ok(vacancy);
     }
 }

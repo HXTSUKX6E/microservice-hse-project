@@ -43,5 +43,5 @@ public class Vacancy {
 
     private String hours;
 
-    private Boolean is_accepted = false;
+    private Boolean is_educated = false;
 }
