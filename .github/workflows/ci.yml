@@ -13,14 +13,6 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-      postgres:
-        image: postgres:latest
-        env:
-          POSTGRES_DB: RestApiHse
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: 12345678
-        ports:
-          - 5432:5432 
 
       pgadmin:
         image: dpage/pgadmin4
