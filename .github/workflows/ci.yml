@@ -42,14 +42,6 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y docker-compose
 
-            
-    - name: Build and run services
-      run: docker-compose up -d --build
-
-    - name: Wait for services to be ready
-      run: |
-        sleep 30  # Дайте время для инициализации баз данных и сервисов
-
     - name: Build company-service
       run: |
         cd company-service/demo
@@ -59,6 +51,15 @@ jobs:
       run: |
         cd vacancy-service/demo
         mvn clean package
+
+    
+    - name: Wait for services to be ready
+      run: |
+        sleep 30  # Дайте время для инициализации баз данных и сервисов
+        
+    - name: Build and run services
+      run: docker-compose up -d --build
+
 
     - name: Stop and remove services
       run: docker-compose down
