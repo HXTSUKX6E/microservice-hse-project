@@ -48,7 +48,7 @@ jobs:
         mvn clean package
     - name: Build vacancy-service
       run: |
-        cd ../../vacancy-service/demo
+        cd vacancy-service/demo
         mvn clean package
         
     - name: Build and run services
