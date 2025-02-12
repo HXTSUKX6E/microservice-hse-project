@@ -11,7 +11,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-  
+
     services:
       postgres:
         image: postgres:latest
@@ -33,22 +33,7 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-      
-    - name: Set up JDK
-      uses: actions/setup-java@v2
-      with:
-        java-version: '17'
-        
-    - name: Build company-service
-      run: |
-        cd company-service/demo
-        mvn clean package
 
-    - name: Build vacancy-service
-      run: |
-        cd ../../vacancy-service/demo
-        mvn clean package
-        
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
 
@@ -56,13 +41,11 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y docker-compose
-
     - name: Build and run services
       run: docker-compose up -d --build
 
     - name: Wait for services to be ready
       run: |
         sleep 30  # Дайте время для инициализации баз данных и сервисов
-
     - name: Stop and remove services
       run: docker-compose down
