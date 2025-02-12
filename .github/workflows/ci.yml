@@ -36,7 +36,7 @@ jobs:
 
     - name: Build company-service
       run: |
-        cd ../../vacancy-service/demo
+        cd company-service/demo
         mvn clean package
 
     - name: Build vacancy-service
