@@ -1,4 +1,6 @@
 HELP.md
+# Ignore target directories
+target/
 *.jar
 ### STS ###
 .apt_generated
