@@ -42,20 +42,23 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y docker-compose
 
-    - name: Build company-service
-      run: |
-        cd company-service/demo
-        mvn clean package
-    - name: Build vacancy-service
-      run: |
-        cd vacancy-service/demo
-        mvn clean package
-        
+            
     - name: Build and run services
       run: docker-compose up -d --build
 
     - name: Wait for services to be ready
       run: |
         sleep 30  # Дайте время для инициализации баз данных и сервисов
+
+    - name: Build company-service
+      run: |
+        cd company-service/demo
+        mvn clean package
+        
+    - name: Build vacancy-service
+      run: |
+        cd vacancy-service/demo
+        mvn clean package
+
     - name: Stop and remove services
       run: docker-compose down
