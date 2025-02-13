@@ -1,6 +1,6 @@
 meta:
   name: my-spring-app
-  version: 4.0.0
+  version: 6
   environment: jvm
   toolchain:
     name: maven
@@ -30,9 +30,7 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: 12345678
     run:
-      jarName: target/company-service.jar  # Убедитесь, что JAR-файл создается в этой папке
-    commands:
-      - mvn clean package  # Команда для сборки JAR-файла
+      jarName: demo/target/company-service.jar
 
   vacancy-service:
     build:
@@ -46,9 +44,7 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: 12345678
     run:
-      jarName: target/vacancy-service.jar  # Убедитесь, что JAR-файл создается в этой папке
-    commands:
-      - mvn clean package  # Команда для сборки JAR-файла
+      jarName: demo/target/vacancy-service.jar
 
   
 volumes:
