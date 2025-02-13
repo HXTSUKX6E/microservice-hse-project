@@ -1,7 +1,7 @@
 meta:
   name: my-spring-app
   version: 4.0.0
-  environment: java
+  environment: jvm
   toolchain:
     name: maven
     version: 17
@@ -29,6 +29,10 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/RestApiHse
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: 12345678
+    run:
+      jarName: target/company-service.jar  # Убедитесь, что JAR-файл создается в этой папке
+    commands:
+      - mvn clean package  # Команда для сборки JAR-файла
 
   vacancy-service:
     build:
@@ -41,6 +45,11 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/RestApiHse
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: 12345678
+    run:
+      jarName: target/vacancy-service.jar  # Убедитесь, что JAR-файл создается в этой папке
+    commands:
+      - mvn clean package  # Команда для сборки JAR-файла
 
+  
 volumes:
   postgres_data:
