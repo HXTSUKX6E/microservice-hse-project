@@ -55,11 +55,7 @@ jobs:
     
     - name: Wait for services to be ready
       run: |
-        sleep 30  # Дайте время для инициализации баз данных и сервисов
-        
-    - name: Build and run services
-      run: docker-compose up -d --build
-
+        sleep 30
 
     - name: Stop and remove services
       run: docker-compose down
