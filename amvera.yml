@@ -1,51 +1,31 @@
 meta:
-  name: my-spring-app
-  version: 6
   environment: jvm
   toolchain:
     name: maven
     version: 17
 
+build:
+  artifacts:
+    target/*.jar: /
+
 services:
-  postgres:
-    image: postgres:latest
-    environment:
-      POSTGRES_DB: RestApiHse
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 12345678
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+  vacancy-service:
+    run:
+      jarName: vacancy-service/target/vacancy-service.jar
+      persistenceMount: /data
+      containerPort: 80
 
   company-service:
-    build:
-      context: ./company-service
-    ports:
-      - "8083:8083"
-    depends_on:
-      - postgres
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/RestApiHse
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: 12345678
     run:
-      jarName: demo/target/company-service.jar
+      jarName: company-service/target/company-service.jar
+      persistenceMount: /data
+      containerPort: 80
 
-  vacancy-service:
-    build:
-      context: ./vacancy-service
+  db:
+    image: postgres:latest
+    env:
+      POSTGRES_DB: mydatabase
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
     ports:
-      - "8084:8084"
-    depends_on:
-      - postgres
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/RestApiHse
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: 12345678
-    run:
-      jarName: demo/target/vacancy-service.jar
-
-  
-volumes:
-  postgres_data:
+      - 5432:5432
