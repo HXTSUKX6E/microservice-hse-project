@@ -21,14 +21,6 @@ jobs:
           POSTGRES_PASSWORD: 12345678
         ports:
           - 5432:5432
-          
-      pgadmin:
-        image: dpage/pgadmin4
-        env:
-          PGADMIN_DEFAULT_EMAIL: admin@admin.com
-          PGADMIN_DEFAULT_PASSWORD: admin
-        ports:
-          - 5051:80
 
     steps:
     - name: Checkout code
@@ -58,11 +50,16 @@ jobs:
         cd vacancy-service
         docker build -t ieatprettygirl/hse-rep .
 
+    - name: Debug environment variables
+      run: |
+        echo "DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}"
+        echo "DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}"
+    
     - name: Log in to Docker Hub
       env:
         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-        DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
-      run: echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+        DOCKER_TOKEN: ${{ secrets.DOCKER_PASSWORD }}
+      run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
     - name: Push Docker images
       run: |
