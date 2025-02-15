@@ -11,7 +11,17 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_DB: RestApiHse
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: 12345678
+        ports:
+          - 5432:5432
+          
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
