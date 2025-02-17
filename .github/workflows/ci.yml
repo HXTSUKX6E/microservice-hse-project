@@ -52,16 +52,9 @@ jobs:
         cd vacancy-service/demo
         mvn clean package
 
-    - name: Install Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '17'
-
-    - name: Install Newman
-      run: npm install -g newman
-
-    - name: Run Postman Collection
-      run: newman run ./tests-postman/Web_back.postman_collection.json
+    - name: Run Postman tests
+      run: |
+        docker run --rm myapp newman run ./tests-postman/Web_back.postman_collection.json
 
     - name: Stop and remove services
       run: docker-compose down
