@@ -50,7 +50,6 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
     
-<<<<<<< HEAD
     - name: Install Node.js
       uses: actions/setup-node@v2
       with:
