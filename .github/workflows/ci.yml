@@ -54,7 +54,7 @@ jobs:
 
     - name: Run Postman tests
       run: |
-        docker build -t myapp ./tests-postman/Dockerfile
+        docker build -t myapp ./tests-postman
         docker run --rm myapp
 
     - name: Stop and remove services
