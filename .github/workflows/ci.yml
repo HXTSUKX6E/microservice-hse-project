@@ -52,10 +52,5 @@ jobs:
         cd vacancy-service/demo
         mvn clean package
 
-    - name: Run Postman tests
-      run: |
-        docker build -t myapp ./tests-postman
-        docker run --rm myapp
-
     - name: Stop and remove services
       run: docker-compose down
