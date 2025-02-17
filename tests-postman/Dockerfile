@@ -12,4 +12,4 @@ COPY Web_back.postman_collection.json ./
 RUN npm install -g newman
 
 # Запустите тесты Postman
-CMD ["newman", "run", "./tests-postman/Web_back.postman_collection.json"]
+CMD ["newman", "run", "Web_back.postman_collection.json"]
