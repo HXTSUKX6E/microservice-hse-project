@@ -3,6 +3,7 @@ package net.javaguides.springboot.config;
 import net.javaguides.springboot.util.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -19,6 +20,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
 @EnableWebSecurity
+@EnableAsync
 public class SecurityConfig {
 
     @Bean

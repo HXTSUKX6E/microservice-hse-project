@@ -1,9 +1,5 @@
 package net.javaguides.springboot.service;
-import net.javaguides.springboot.exception.ErrorResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.core.context.SecurityContextHolder;
 import net.javaguides.springboot.dto.CompanyRequest;
 import net.javaguides.springboot.dto.VacancyDto;
@@ -11,12 +7,9 @@ import net.javaguides.springboot.exception.CompanyNotApprovedException;
 import net.javaguides.springboot.model.Company;
 import net.javaguides.springboot.model.Vacancy;
 import net.javaguides.springboot.repository.VacancyRepository;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientException;
-import org.springframework.web.reactive.function.client.WebClientRequestException;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -24,11 +17,9 @@ public class VacancyService {
 
     private final WebClient webClient;
     private final VacancyRepository vacancyRepository;
-    private final RestTemplate restTemplate;
 
     @Autowired
-    public VacancyService(RestTemplate restTemplate, VacancyRepository vacancyRepository, WebClient.Builder webClientBuilder) {
-        this.restTemplate = restTemplate;
+    public VacancyService(VacancyRepository vacancyRepository, WebClient.Builder webClientBuilder) {
         this.vacancyRepository = vacancyRepository;
         this.webClient = webClientBuilder.baseUrl("http://company-service:8083").build();
     }

@@ -1,17 +1,18 @@
 package net.javaguides.springboot.controller;
 
 import jakarta.validation.Valid;
-import net.javaguides.springboot.dto.CompanyRequest;
 import net.javaguides.springboot.dto.VacancyDto;
 import net.javaguides.springboot.model.Vacancy;
-import net.javaguides.springboot.model.Company;
 import net.javaguides.springboot.repository.CompanyRepository;
 import net.javaguides.springboot.repository.VacancyRepository;
 import net.javaguides.springboot.service.VacancyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.concurrent.CompletableFuture;
 
 @CrossOrigin(origins = "http://localhost:5432")
 @RestController
@@ -33,8 +34,9 @@ public class VacancyController {
     // create
     @PreAuthorize("hasRole('ROLE_3') || hasRole('ROLE_1')")
     @PostMapping("/vacancy")
-    public ResponseEntity<Vacancy> createVacancy(@RequestBody @Valid VacancyDto vacancyDto) {
+    @Async
+    public CompletableFuture<ResponseEntity<Vacancy>> createVacancy(@RequestBody @Valid VacancyDto vacancyDto) {
         Vacancy vacancy = vacancyService.createVacancy2(vacancyDto);
-        return ResponseEntity.ok(vacancy);
+        return CompletableFuture.completedFuture(ResponseEntity.ok(vacancy));
     }
 }

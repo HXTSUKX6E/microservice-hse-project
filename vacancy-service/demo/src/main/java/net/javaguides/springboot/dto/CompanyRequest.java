@@ -33,4 +33,5 @@ public class CompanyRequest {
         this.is_accepted = is_accepted;
         this.vacancies = vacancies;
     }
+    public  CompanyRequest() {}
 }
