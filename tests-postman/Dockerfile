@@ -5,10 +5,8 @@ FROM node:17
 WORKDIR /app
 
 # Скопируйте файлы вашего приложения
-COPY . .
+COPY Web_back.postman_collection.json ./
 
-# Установите зависимости
-RUN npm install
 
 # Установите Newman
 RUN npm install -g newman
