@@ -56,6 +56,11 @@ jobs:
       run: |
         cd vacancy-service/demo
         mvn clean package
+        
+    - name: Run mock-test for vacancy-service
+      run: |
+        cd vacancy-service/demo
+        mvn test
 
     - name: Stop and remove services
       run: docker-compose down
