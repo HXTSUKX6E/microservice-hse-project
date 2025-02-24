@@ -1,5 +1,6 @@
 package net.javaguides.springboot.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -45,21 +46,21 @@ public class Company {
 
     private Boolean is_accepted = false;
 
-    @OneToMany(mappedBy = "company", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(mappedBy = "company", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.EAGER)
     @JsonIgnoreProperties({"company"})
     private List<Vacancy> vacancies;
 
     public Company() {
     }
 
-    public Company(String inn, String kpp, String ogrn, String address, String director, Date dateRegister, Boolean is_accepted) {
+    public Company(String inn, String kpp, String ogrn, String address, String director, Date date_reg, Boolean is_accepted) {
         super();
         this.inn = inn;
         this.kpp = kpp;
         this.ogrn = ogrn;
         this.address = address;
         this.director = director;
-        this.date_reg = dateRegister;
+        this.date_reg = date_reg;
         this.is_accepted = is_accepted;
     }
 }

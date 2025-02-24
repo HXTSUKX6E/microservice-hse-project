@@ -33,4 +33,6 @@ public class CompanyOneDto {
         this.is_accepted = is_accepted;
         this.vacancies = vacancies;
     }
+
+    public CompanyOneDto() {}
 }

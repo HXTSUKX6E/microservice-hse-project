@@ -1,5 +1,9 @@
 package net.javaguides.springboot.service;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import net.javaguides.springboot.dto.CompanyRequest;
 import net.javaguides.springboot.dto.VacancyDto;
@@ -12,6 +16,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientException;
 import reactor.core.publisher.Mono;
 
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+
+@Slf4j
 @Service
 public class VacancyService {
 
@@ -21,11 +29,14 @@ public class VacancyService {
     @Autowired
     public VacancyService(VacancyRepository vacancyRepository, WebClient.Builder webClientBuilder) {
         this.vacancyRepository = vacancyRepository;
-        this.webClient = webClientBuilder.baseUrl("http://company-service:8083").build();
+        this.webClient = webClientBuilder.baseUrl("http://localhost:8083").build();
     }
-    public Vacancy createVacancy2(VacancyDto vacancyDto) {
+
+    @Async("taskExecutor")
+    public CompletableFuture<Vacancy> createVacancy(VacancyDto vacancyDto) {
         long companyId = vacancyDto.getCompany_id();
         String token = getCurrentUserToken();
+        log.info("token: {}", token);
         try {
             CompanyRequest companyRequest = webClient.get()
                     .uri("/api/company/" + companyId)
@@ -53,8 +64,7 @@ public class VacancyService {
             Company company = getCompany(companyId, companyRequest);
             Vacancy newVacancy = getVacancy(vacancyDto, company, companyRequest);
 
-            vacancyRepository.save(newVacancy);
-            return newVacancy;
+            return CompletableFuture.completedFuture(vacancyRepository.save(newVacancy));
         }
         catch (WebClientException ex) {
             throw new CompanyNotApprovedException("Ошибка на стороне сервера!");
@@ -91,8 +101,8 @@ public class VacancyService {
         return newVacancy;
     }
 
-    private String getCurrentUserToken() {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
+    public String getCurrentUserToken() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication != null && authentication.getCredentials() instanceof String) {
             return (String) authentication.getCredentials();  // Достаём токен
