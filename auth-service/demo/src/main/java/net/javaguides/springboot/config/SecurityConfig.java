@@ -47,7 +47,10 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/confirm").permitAll()
                         .requestMatchers("/api/auth/confirm-email-change").permitAll()
                         .anyRequest().authenticated() // Запросы с аутентификацией
+
                 )
+
+
                 .exceptionHandling(httpExceptionHandling ->
                         httpExceptionHandling.accessDeniedHandler(customAccessDeniedHandler)
                 )
