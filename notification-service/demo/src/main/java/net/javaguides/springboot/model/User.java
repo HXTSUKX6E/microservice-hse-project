@@ -1,5 +1,6 @@
 package net.javaguides.springboot.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -17,6 +18,7 @@ public class User {
     @Column(nullable = false, unique = true)
     private String login;
 
+    @JsonIgnore
     private String pendingLogin;
 
     @NotNull
@@ -29,6 +31,8 @@ public class User {
 
     @Column(nullable = false)
     private boolean enabled = false; // from email
+
+    private Long company_id;
 
     public User() {
     }
