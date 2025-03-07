@@ -1,9 +1,11 @@
 package net.javaguides.springboot.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import net.javaguides.springboot.dto.UserGetOneDTO;
+import net.javaguides.springboot.dto.UserRegistrationEvent;
 import net.javaguides.springboot.exception.ResourceNotFoundException;
 import net.javaguides.springboot.model.Role;
 import net.javaguides.springboot.model.User;
@@ -12,6 +14,7 @@ import net.javaguides.springboot.repository.UserRepository;
 import net.javaguides.springboot.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.DisabledException;
@@ -23,11 +26,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Service
 public class UserService {
 
+    private final ObjectMapper objectMapper;
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
@@ -35,6 +40,7 @@ public class UserService {
     private final EmailService emailService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final TokenBlacklistService tokenBlacklistService;
+    private final KafkaProducerService kafkaProducerService;
 
     // Конструктор для инъекции зависимостей
     @Autowired
@@ -44,7 +50,9 @@ public class UserService {
                        JwtUtil jwtUtil,
                        EmailService emailService,
                        BCryptPasswordEncoder bCryptPasswordEncoder,
-                       TokenBlacklistService tokenBlacklistService) {
+                       TokenBlacklistService tokenBlacklistService,
+                       KafkaProducerService kafkaProducerService,
+                       ObjectMapper objectMapper) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.roleRepository = roleRepository;
@@ -52,20 +60,24 @@ public class UserService {
         this.emailService = emailService;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.tokenBlacklistService = tokenBlacklistService;
+        this.kafkaProducerService = kafkaProducerService;
+        this.objectMapper = objectMapper;
     }
 
     @Async
     public CompletableFuture<ResponseEntity<Map<String, Object>>> createUser(User user) {
         Map<String, Object> response = new HashMap<>();
-        if (!emailService.isValidEmail(user.getLogin())) {
+        if (!isValidEmail(user.getLogin())) {
             response.put("success", false);
             response.put("message", "Невалидный email!");
             return CompletableFuture.completedFuture(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response));
         }
-        // create
+
         String token = registerUser(user.getLogin(), user.getPassword(), user.getRole());
 
-        emailService.sendVerificationEmail(user.getLogin(), token);
+        kafkaProducerService.sendUserRegistrationEvent(user.getLogin(), token); // отправка события в кафку
+
+//        emailService.sendVerificationEmail(user.getLogin(), token);
         response.put("created", Boolean.TRUE);
         return CompletableFuture.completedFuture(ResponseEntity.ok(response));
     }
@@ -107,7 +119,8 @@ public class UserService {
             Map<String, Object> response = new HashMap<>();
             response.put("authenticated", Boolean.TRUE);
             response.put("token", token);
-            return CompletableFuture.completedFuture(ResponseEntity.ok(response));}
+            return CompletableFuture.completedFuture(ResponseEntity.ok(response));
+        }
         catch (DisabledException e) {
             Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("authenticated", Boolean.FALSE);
@@ -157,7 +170,7 @@ public class UserService {
                     .orElseThrow(() -> new ResourceNotFoundException("Не удалось установить указанную роль!"));
             existingUser.setRole(role);
         }
-        else {throw new ResourceNotFoundException("Недостаточно прав!");}
+        else {throw new ResourceNotFoundException("Недостаточно прав!"); }
         if (!existingUser.getLogin().equals(currentUsername)) {
             throw new ResourceNotFoundException("Нет доступа!");
         }
@@ -179,7 +192,7 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("Пользователь не найден!"));
         String login = loginRequest.get("login");
         Map<String, Object> response = new HashMap<>();
-        if (!emailService.isValidEmail(login)) {
+        if (!isValidEmail(login)) {
             response.put("message", "Невалидный email!");
             return CompletableFuture.completedFuture(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response));
         }
@@ -196,7 +209,7 @@ public class UserService {
 
             response.put("message", "Если вы изменили адрес электронной почты, подтвердите его, перейдя по ссылке, отправленной на указанный адрес электронной почты.");
         }
-        else {response.put("message", "Изменений не было!");}
+        else {response.put("message", "Изменений не было!"); }
         return CompletableFuture.completedFuture(ResponseEntity.ok(response));
     }
 
@@ -234,8 +247,8 @@ public class UserService {
         user.setPendingLogin(null);
         user.setCompany_id(null);
         Optional<Role> optionalRole = roleRepository.findById(2L);
-        if (optionalRole.isPresent()) { user.setRole(optionalRole.get());
-        } else { throw new RuntimeException("Роль не найдена!");}
+        if (optionalRole.isPresent()) { user.setRole(optionalRole.get()); }
+        else { throw new RuntimeException("Роль не найдена!"); }
         userRepository.save(user);
 
         return jwtUtil.generateToken(user.getLogin(), user.getRole().getRole_id());
@@ -254,5 +267,15 @@ public class UserService {
         }
 
         return jwtUtil.generateToken(user.getLogin(), user.getRole().getRole_id());
+    }
+
+    private static final String EMAIL_REGEX = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
+
+    public boolean isValidEmail(String email) {
+        if (email == null) {
+            return false;
+        }
+        Pattern pattern = Pattern.compile(EMAIL_REGEX);
+        return pattern.matcher(email).matches();
     }
 }

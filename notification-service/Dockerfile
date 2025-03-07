@@ -5,10 +5,10 @@ FROM openjdk:17-jdk-slim
 WORKDIR /app
 
 # Копируем JAR файл в контейнер
-COPY demo/target/auth-service.jar app.jar
+COPY demo/target/notification-service.jar app.jar
 
 # Открываем порт
-EXPOSE 8080
+EXPOSE 8081
 
 # Указываем команду для запуска приложения
 ENTRYPOINT ["java", "-jar", "app.jar"]

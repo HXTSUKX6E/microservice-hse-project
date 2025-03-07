@@ -162,7 +162,7 @@
 	</dependencyManagement>
 
 	<build>
-		<finalName>company-service</finalName>
+		<finalName>company-vacancy-service</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>

@@ -14,16 +14,35 @@ services:
       - ALLOW_PLAINTEXT_LISTENER=yes
     depends_on:
       - zookeeper
-  postgres:
+  auth-db:
     image: postgres:latest
     environment:
-      POSTGRES_DB: RestApiHse
+      POSTGRES_DB: AuthDb
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 12345678
     ports:
       - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    # volumes:
+    #   - postgres_data:/var/lib/postgresql/data
+  company-vacancy-db:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: CompVacDb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345678
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5433:5432"
+    
   pgadmin:
     image: dpage/pgadmin4
     environment:
@@ -31,27 +50,37 @@ services:
       PGADMIN_DEFAULT_PASSWORD: admin
     ports:
       - "5050:80"  # Доступ к pgAdmin через http://localhost:5050
-  company-service:
+  company-vacancy-service:
     build:
-      context: ./company-service
+      context: ./company-vacancy-service
     ports:
       - "8083:8083"
     depends_on:
-      - postgres
+      company-vacancy-db:
+        condition: service_healthy
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/RestApiHse
+      SPRING_DATASOURCE_URL: jdbc:postgresql://company-vacancy-db:5432/CompVacDb
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: 12345678
-  vacancy-service:
+  auth-service:
     build:
-      context: ./vacancy-service
+      context: ./auth-service
     ports:
-      - "8084:8084"
+      - "8080:8080"
     depends_on:
-      - postgres
+      auth-db:
+        condition: service_healthy
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/RestApiHse
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SPRING_DATASOURCE_URL: jdbc:postgresql://auth-db:5432/AuthDb
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: 12345678
+  notification-service:
+    build:
+      context: ./notification-service
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
 volumes:
   postgres_data:
