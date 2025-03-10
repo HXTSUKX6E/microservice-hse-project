@@ -19,7 +19,12 @@ public class Role {
 
     public Role() {}
 
-    public Role(String title) {
+    public Role(Long role_id, String  title) {
+        this.role_id = role_id;
+        this.title = title;
+    }
+
+    public Role(String  title) {
         this.title = title;
     }
 

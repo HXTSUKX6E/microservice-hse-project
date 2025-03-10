@@ -50,7 +50,7 @@ public class UserController {
     // confirm change email
     @GetMapping("/auth/confirm-email-change")
     public ResponseEntity<Map<String, Object>> confirmEmailChange(HttpServletRequest request, @RequestParam String token) throws ExecutionException, InterruptedException {
-        return userService.confirmEmailChange(request, token).get();
+        return userService.confirmEmailChange(token).get();
     }
 
     // change in your profile (not @Valid else drop)

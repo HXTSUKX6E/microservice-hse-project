@@ -25,6 +25,35 @@ public class EmailService {
         this.objectMapper = objectMapper;
     }
 
+    @KafkaListener(topics = "user-change-event", groupId = "email-change-group")
+    public void changeEmail(String message) {
+        try {
+            // Десериализация JSON в DTO
+            UserRegistrationEvent event = objectMapper.readValue(message, UserRegistrationEvent.class);
+
+            // Логика обработки события (отправка уведомления)
+            sendConfirmationChangeEmail(event.getLogin(), event.getToken());
+
+        } catch (Exception e) {
+            logger.error("An error occurred", e);
+        }
+    }
+
+
+    @KafkaListener(topics = "user-registration", groupId = "registration-group")
+    public void listenRegistration(String message) {
+        try {
+            // Десериализация JSON в DTO
+            UserRegistrationEvent event = objectMapper.readValue(message, UserRegistrationEvent.class);
+
+            // Логика обработки события (отправка уведомления)
+            sendVerificationEmail(event.getLogin(), event.getToken());
+
+        } catch (Exception e) {
+            logger.error("An error occurred", e);
+        }
+    }
+
     @Async
     public void sendConfirmationChangeEmail(String to, String token) {
         String subject = "Подтверждение изменения ";
@@ -37,20 +66,6 @@ public class EmailService {
         email.setText(message);
 
         mailSender.send(email);
-    }
-
-    @KafkaListener(topics = "user-registration", groupId = "notification-group")
-    public void listen(String message) {
-        try {
-            // Десериализация JSON в DTO
-            UserRegistrationEvent event = objectMapper.readValue(message, UserRegistrationEvent.class);
-
-            // Логика обработки события (отправка уведомления)
-            sendVerificationEmail(event.getLogin(), event.getToken());
-
-        } catch (Exception e) {
-            logger.error("An error occurred", e);
-        }
     }
 
     @Async

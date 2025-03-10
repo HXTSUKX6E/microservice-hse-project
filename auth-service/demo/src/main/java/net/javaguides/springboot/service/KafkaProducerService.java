@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class KafkaProducerService {
     private static final String TOPIC = "user-registration";
+    private static final String TOPIC2 = "user-change-event";
     private final ObjectMapper objectMapper;
     private final KafkaTemplate<String, String> kafkaTemplate;
 
@@ -33,6 +34,19 @@ public class KafkaProducerService {
         try {
             String message = objectMapper.writeValueAsString(event); // Сериализация в JSON
             kafkaTemplate.send(TOPIC, message); // Отправка в Kafka
+        } catch (JsonProcessingException e) {
+            logger.error("An error occurred", e);
+        }
+    }
+
+    public void sendUserChangeEvent(String newLogin, String token) {
+        UserRegistrationEvent event = new UserRegistrationEvent();
+        event.setLogin(newLogin);
+        event.setToken(token);
+
+        try {
+            String message = objectMapper.writeValueAsString(event); // Сериализация в JSON
+            kafkaTemplate.send(TOPIC2, message); // Отправка в Kafka
         } catch (JsonProcessingException e) {
             logger.error("An error occurred", e);
         }

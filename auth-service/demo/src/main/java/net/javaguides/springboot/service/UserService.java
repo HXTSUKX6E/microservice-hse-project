@@ -1,11 +1,9 @@
 package net.javaguides.springboot.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import net.javaguides.springboot.dto.UserGetOneDTO;
-import net.javaguides.springboot.dto.UserRegistrationEvent;
 import net.javaguides.springboot.exception.ResourceNotFoundException;
 import net.javaguides.springboot.model.Role;
 import net.javaguides.springboot.model.User;
@@ -23,7 +21,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
@@ -37,7 +34,6 @@ public class UserService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
     private final JwtUtil jwtUtil; // Добавьте JwtUtil
-    private final EmailService emailService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final TokenBlacklistService tokenBlacklistService;
     private final KafkaProducerService kafkaProducerService;
@@ -48,7 +44,6 @@ public class UserService {
                        BCryptPasswordEncoder passwordEncoder,
                        RoleRepository roleRepository,
                        JwtUtil jwtUtil,
-                       EmailService emailService,
                        BCryptPasswordEncoder bCryptPasswordEncoder,
                        TokenBlacklistService tokenBlacklistService,
                        KafkaProducerService kafkaProducerService,
@@ -57,7 +52,6 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
         this.roleRepository = roleRepository;
         this.jwtUtil = jwtUtil;
-        this.emailService = emailService;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.tokenBlacklistService = tokenBlacklistService;
         this.kafkaProducerService = kafkaProducerService;
@@ -67,7 +61,7 @@ public class UserService {
     @Async
     public CompletableFuture<ResponseEntity<Map<String, Object>>> createUser(User user) {
         Map<String, Object> response = new HashMap<>();
-        if (!isValidEmail(user.getLogin())) {
+        if (isValidEmail(user.getLogin())) {
             response.put("success", false);
             response.put("message", "Невалидный email!");
             return CompletableFuture.completedFuture(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response));
@@ -136,7 +130,7 @@ public class UserService {
     }
 
     @Async
-    public CompletableFuture<ResponseEntity<Map<String, Object>>> confirmEmailChange(HttpServletRequest request, String token) {
+    public CompletableFuture<ResponseEntity<Map<String, Object>>> confirmEmailChange(String token) {
         String newEmail = jwtUtil.extractUsername(token);
         Optional<User> userOpt = userRepository.findByPendingLogin(newEmail);
         if (userOpt.isPresent()) {
@@ -187,12 +181,14 @@ public class UserService {
         return CompletableFuture.completedFuture(ResponseEntity.ok(response));
     }
 
+    // !
+    @Async
     public CompletableFuture<ResponseEntity<Map<String, Object>>> updateLogin(HttpServletRequest request, Long id, Map<String, String> loginRequest) {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Пользователь не найден!"));
         String login = loginRequest.get("login");
         Map<String, Object> response = new HashMap<>();
-        if (!isValidEmail(login)) {
+        if (isValidEmail(login)) {
             response.put("message", "Невалидный email!");
             return CompletableFuture.completedFuture(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response));
         }
@@ -201,11 +197,13 @@ public class UserService {
 
             String newToken = jwtUtil.generateToken(login, existingUser.getRole().getRole_id());
             existingUser.setPendingLogin(login);
-            emailService.sendConfirmationChangeEmail(existingUser.getPendingLogin(), newToken);
 
+            // emailService.sendConfirmationChangeEmail(existingUser.getPendingLogin(), newToken);
             userRepository.save(existingUser);
-            String token = extractToken(request);
-            tokenBlacklistService.addToBlacklist(token);
+            kafkaProducerService.sendUserChangeEvent(existingUser.getPendingLogin(), newToken);
+
+            // String token = extractToken(request);
+            // tokenBlacklistService.addToBlacklist(token);
 
             response.put("message", "Если вы изменили адрес электронной почты, подтвердите его, перейдя по ссылке, отправленной на указанный адрес электронной почты.");
         }
@@ -273,9 +271,9 @@ public class UserService {
 
     public boolean isValidEmail(String email) {
         if (email == null) {
-            return false;
+            return true;
         }
         Pattern pattern = Pattern.compile(EMAIL_REGEX);
-        return pattern.matcher(email).matches();
+        return !pattern.matcher(email).matches();
     }
 }
