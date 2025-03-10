@@ -77,7 +77,7 @@ public class TestAuth {
         registry.add("spring.kafka.bootstrap-servers", kafka::getBootstrapServers);
     }
 
-    @DisplayName("Register user")
+    @DisplayName("Успешная регистрация пользователя")
     @Test
     public void testRegisterUser() throws Exception {
         Map<String, String> user = Map.of(
@@ -117,7 +117,7 @@ public class TestAuth {
         }
     }
 
-    @DisplayName("Unsuccessfully login user")
+    @DisplayName("Ошибка регистрации если не подтверждён аккаунт")
     @Test
     public void testAuthUserIsForbidden() throws Exception {
         Map<String, String> user = Map.of(
@@ -133,7 +133,7 @@ public class TestAuth {
 
     }
 
-    @DisplayName("Login user")
+    @DisplayName("Успешный вход пользователя в систему")
     @Test
     public void testAuthUser() throws Exception {
         Role role = new Role(2L, "Пользователь");
