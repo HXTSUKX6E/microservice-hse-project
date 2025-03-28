@@ -1,0 +1,2 @@
+2025/03/28 14:43:30 [emerg] 1#1: host not found in upstream "company_vacancy_service" in /etc/nginx/conf.d/gateway.conf:25
+2025/03/28 15:01:30 [error] 25#25: *4 open() "/etc/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.18.0.1, server: localhost, request: "GET /favicon.ico HTTP/1.1", host: "localhost", referrer: "http://localhost/api/auth/confirm?token=eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJkaW1hMjAwMzA2MTdAbWFpbC5ydSIsInJvbGVfaWQiOjIsImlhdCI6MTc0MzE3Mzc5MywiZXhwIjoxNzQzNzc4NTkzfQ.MPVTDvdBbD_hdTvOqcLuTcHmuv_Ozdml1mV_U45oO7STaR5cT18jkRQPWwqR_9g1"
