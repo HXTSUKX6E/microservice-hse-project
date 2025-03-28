@@ -60,13 +60,13 @@ public class UserService {
 
     @Async
     public CompletableFuture<ResponseEntity<Map<String, Object>>> createUser(User user) {
+        log.info("Пользователь в потоке");
         Map<String, Object> response = new HashMap<>();
         if (isValidEmail(user.getLogin())) {
             response.put("success", false);
             response.put("message", "Невалидный email!");
             return CompletableFuture.completedFuture(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response));
         }
-
         String token = registerUser(user);
 
         kafkaProducerService.sendUserRegistrationEvent(user.getLogin(), token); // отправка события в кафку
