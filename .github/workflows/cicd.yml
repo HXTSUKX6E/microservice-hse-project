@@ -70,10 +70,7 @@ jobs:
       working-directory: auth-service/demo
       run: mvn -B clean package -DskipTests
     - name: Run tests for auth-service
-      working-directory: auth-service/demo
-      run: |
-        cd auth-service/demo
-        mvn test
+      run: mvn test
 
   company-vacancy-service:
     runs-on: ubuntu-latest
@@ -84,10 +81,7 @@ jobs:
       working-directory: company-vacancy-service/demo
       run: mvn -B clean package -DskipTests
     - name: Run tests for company-vacancy-service
-      working-directory: company-vacancy-service/demo
-      run: |
-        cd company-vacancy-service/demo
-        mvn test
+      run: mvn test
 
   cleanup:
     runs-on: ubuntu-latest
