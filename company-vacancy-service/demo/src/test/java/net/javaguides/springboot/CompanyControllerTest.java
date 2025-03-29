@@ -58,6 +58,9 @@ public class CompanyControllerTest {
                 .build();
     }
 
+    @Test
+    void contextLoads() {}
+
     // Company-test-getAll
     @Test
     @WithMockUser
