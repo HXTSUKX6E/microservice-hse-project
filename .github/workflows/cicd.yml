@@ -15,6 +15,13 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
+    - name: Set up Java
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: 'maven'
+        
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
       
@@ -48,19 +55,11 @@ jobs:
         ports:
           - 5433:5432
         options: --health-cmd="pg_isready -U postgres" --health-interval=5s --health-timeout=5s --health-retries=5
-      
-      pgadmin:
-        image: dpage/pgadmin4
-        env:
-          PGADMIN_DEFAULT_EMAIL: admin@admin.com
-          PGADMIN_DEFAULT_PASSWORD: admin
-        ports:
-          - 5051:80
     steps:
-    - name: Wait for databases to be ready
+    - name: Wait for databases
       run: |
-        echo "Waiting for databases to become healthy..."
-        sleep 10
+        echo "Waiting for databases to become ready..."
+        sleep 15
 
   auth-service:
     runs-on: ubuntu-latest
@@ -68,13 +67,15 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Build auth-service
-      run: |
-        cd auth-service/demo
-        mvn clean package
+      working-directory: auth-service/demo
+      run: mvn -B clean package -DskipTests
     - name: Run tests for auth-service
+      working-directory: auth-service/demo
       run: |
-        cd auth-service/demo
-        mvn test
+        mvn -B test \
+          -Dspring.datasource.url=jdbc:postgresql://localhost:5432/AuthDb \
+          -Dspring.datasource.username=postgres \
+          -Dspring.datasource.password=12345678
 
   company-vacancy-service:
     runs-on: ubuntu-latest
@@ -82,19 +83,21 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Build company-vacancy-service
-      run: |
-        cd company-vacancy-service/demo
-        mvn clean package
+      working-directory: company-vacancy-service/demo
+      run: mvn -B clean package -DskipTests
     - name: Run tests for company-vacancy-service
+      working-directory: company-vacancy-service/demo
       run: |
-        cd company-vacancy-service/demo
-        mvn test
+        mvn -B test \
+          -Dspring.datasource.url=jdbc:postgresql://localhost:5433/CompVacDb \
+          -Dspring.datasource.username=postgres \
+          -spring.datasource.password=12345678 \
+          -Dspring.test.context.cache.maxSize=1
 
   cleanup:
     runs-on: ubuntu-latest
     needs: [auth-service, company-vacancy-service]
     if: always()
     steps:
-    - name: Stop and remove services
-      run: |
-        docker-compose down || true
+    - name: Stop containers
+      run: docker-compose down || true
