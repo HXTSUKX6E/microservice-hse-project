@@ -72,10 +72,8 @@ jobs:
     - name: Run tests for auth-service
       working-directory: auth-service/demo
       run: |
-        mvn -B test \
-          -Dspring.datasource.url=jdbc:postgresql://localhost:5432/AuthDb \
-          -Dspring.datasource.username=postgres \
-          -Dspring.datasource.password=12345678
+        cd auth-service/demo
+        mvn test
 
   company-vacancy-service:
     runs-on: ubuntu-latest
@@ -88,11 +86,8 @@ jobs:
     - name: Run tests for company-vacancy-service
       working-directory: company-vacancy-service/demo
       run: |
-        mvn -B test \
-          -Dspring.datasource.url=jdbc:postgresql://localhost:5433/CompVacDb \
-          -Dspring.datasource.username=postgres \
-          -Dspring.datasource.password=12345678 \
-          -Dspring.test.context.cache.maxSize=1
+        cd company-vacancy-service/demo
+        mvn test
 
   cleanup:
     runs-on: ubuntu-latest
