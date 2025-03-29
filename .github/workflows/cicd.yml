@@ -91,7 +91,7 @@ jobs:
         mvn -B test \
           -Dspring.datasource.url=jdbc:postgresql://localhost:5433/CompVacDb \
           -Dspring.datasource.username=postgres \
-          -spring.datasource.password=12345678 \
+          -Dspring.datasource.password=12345678 \
           -Dspring.test.context.cache.maxSize=1
 
   cleanup:
