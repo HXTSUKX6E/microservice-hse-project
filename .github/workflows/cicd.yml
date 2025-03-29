@@ -86,7 +86,7 @@ jobs:
       run: |
         mvn test -B \
         -Dspring.profiles.active=ci \
-        -Dspring.datasource.url=jdbc:postgresql://localhost:5433/CompVacDb \
+        -Dspring.datasource.url=jdbc:postgresql://company-vacancy-db:5432/CompVacDb \
         -Dspring.datasource.username=postgres \
         -Dspring.datasource.password=12345678
 
