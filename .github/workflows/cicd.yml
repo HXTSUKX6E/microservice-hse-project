@@ -58,8 +58,8 @@ jobs:
     steps:
     - name: Wait for databases
       run: |
-        echo "Waiting for databases to become ready..."
-        sleep 15
+        echo "Waiting for databases..."
+        timeout 30s bash -c 'until nc -z localhost 5433; do sleep 1; echo "Retrying..."; done'
 
   auth-service:
     runs-on: ubuntu-latest
@@ -86,7 +86,7 @@ jobs:
       run: |
         mvn test -B \
         -Dspring.profiles.active=ci \
-        -Dspring.datasource.url=jdbc:postgresql://localhost:5433/CompVacDb \
+        -Dspring.datasource.url=jdbc:postgresql://company-vacancy-db:5432/CompVacDb \
         -Dspring.datasource.username=postgres \
         -Dspring.datasource.password=12345678
 
