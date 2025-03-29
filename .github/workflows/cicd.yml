@@ -58,8 +58,8 @@ jobs:
     steps:
     - name: Wait for databases
       run: |
-        echo "Waiting for databases to become ready..."
-        sleep 15
+        echo "Waiting for databases..."
+        timeout 30s bash -c 'until nc -z localhost 5433; do sleep 1; echo "Retrying..."; done'
 
   auth-service:
     runs-on: ubuntu-latest
