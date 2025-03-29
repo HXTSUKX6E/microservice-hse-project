@@ -31,7 +31,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
-@SpringBootTest
+@SpringBootTest(classes = SpringbootBackendApplication.class)
 @AutoConfigureMockMvc
 @Slf4j
 public class CompanyControllerTest {
