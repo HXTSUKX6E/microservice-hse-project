@@ -83,7 +83,7 @@ jobs:
       run: mvn -B clean package -DskipTests
     - name: Run tests for company-vacancy-service
       working-directory: company-vacancy-service/demo
-      run: mvn test
+      run: mvn test -e -X
 
   cleanup:
     runs-on: ubuntu-latest
