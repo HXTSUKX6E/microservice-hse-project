@@ -33,11 +33,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
-@SpringBootTest(
-        classes = SpringbootBackendApplication.class,
-        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
-)
-@AutoConfigureMockMvc(addFilters = false) // Отключаем security фильтры
+@SpringBootTest(classes = SpringbootBackendApplication.class)
+@AutoConfigureMockMvc
 @Slf4j
 public class CompanyControllerTest {
 
