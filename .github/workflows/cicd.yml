@@ -84,7 +84,10 @@ jobs:
     - name: Run tests for company-vacancy-service
       working-directory: company-vacancy-service/demo
       run: |
-       mvn test
+       mvn test -B -e \
+       -Dspring.datasource.url=jdbc:postgresql://localhost:5432/CompVacDb \
+       -Dspring.datasource.username=postgres \
+       -Dspring.datasource.password=12345678
 
   cleanup:
     runs-on: ubuntu-latest
