@@ -33,7 +33,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
-@SpringBootTest(classes = SpringbootBackendApplication.class)
+@SpringBootTest
 @AutoConfigureMockMvc
 @Slf4j
 public class CompanyControllerTest {
@@ -55,7 +55,7 @@ public class CompanyControllerTest {
     @BeforeEach
     public void setUp() {
         mockMvc = MockMvcBuilders
-                .webAppContextSetup(context)
+                .webAppContextSetup(this.context)
                 .apply(springSecurity()) // Включаем поддержку Spring Security
                 .build();
     }
