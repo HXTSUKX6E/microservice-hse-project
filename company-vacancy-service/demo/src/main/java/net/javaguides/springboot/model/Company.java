@@ -22,15 +22,15 @@ public class Company {
     @Column(nullable = false)
     private String name;
 
-    @NotNull
+    // @NotNull
     @Column(nullable = false)
     private String inn;
 
-    @NotNull
+    // @NotNull
     @Column(nullable = false)
     private String kpp;
 
-    @NotNull
+    // @NotNull
     @Column(nullable = false)
     private String ogrn;
 
