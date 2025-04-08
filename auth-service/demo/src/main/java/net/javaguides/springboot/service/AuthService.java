@@ -3,6 +3,7 @@ package net.javaguides.springboot.service;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import net.javaguides.springboot.dto.ResetPasswordDTO;
 import net.javaguides.springboot.dto.UserGetOneDTO;
 import net.javaguides.springboot.exception.ResourceNotFoundException;
 import net.javaguides.springboot.model.Role;
@@ -12,7 +13,6 @@ import net.javaguides.springboot.repository.UserRepository;
 import net.javaguides.springboot.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.DisabledException;
@@ -27,9 +27,8 @@ import java.util.regex.Pattern;
 
 @Slf4j
 @Service
-public class UserService {
+public class AuthService {
 
-    private final ObjectMapper objectMapper;
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
@@ -40,14 +39,13 @@ public class UserService {
 
     // Конструктор для инъекции зависимостей
     @Autowired
-    public UserService(UserRepository userRepository,
+    public AuthService(UserRepository userRepository,
                        BCryptPasswordEncoder passwordEncoder,
                        RoleRepository roleRepository,
                        JwtUtil jwtUtil,
                        BCryptPasswordEncoder bCryptPasswordEncoder,
                        TokenBlacklistService tokenBlacklistService,
-                       KafkaProducerService kafkaProducerService,
-                       ObjectMapper objectMapper) {
+                       KafkaProducerService kafkaProducerService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.roleRepository = roleRepository;
@@ -55,12 +53,10 @@ public class UserService {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.tokenBlacklistService = tokenBlacklistService;
         this.kafkaProducerService = kafkaProducerService;
-        this.objectMapper = objectMapper;
     }
 
     @Async
     public CompletableFuture<ResponseEntity<Map<String, Object>>> createUser(User user) {
-        log.info("Пользователь в потоке");
         Map<String, Object> response = new HashMap<>();
         if (isValidEmail(user.getLogin())) {
             response.put("success", false);
@@ -89,7 +85,7 @@ public class UserService {
                 userRepository.save(user);
 
                 response.put("success", true);
-                response.put("message", "User confirmed successfully");
+                response.put("message", "Пользователь успешно зарегистрирован!");
                 return CompletableFuture.completedFuture(ResponseEntity.ok(response));
             } else {
                 response.put("success", false);
@@ -221,6 +217,49 @@ public class UserService {
         return CompletableFuture.completedFuture(ResponseEntity.ok(responses));
     }
 
+    @Async
+    public CompletableFuture<ResponseEntity<Map<String, Object>>> forgotPassword(String email) {
+        Map<String, Object> response = new HashMap<>();
+        if (isValidEmail(email)) {
+            response.put("message", "Введён некорректный email! Повторите попытку.");
+            return CompletableFuture.completedFuture(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response));
+        }
+
+        User user = userRepository.findByLogin(email)
+                .orElseThrow(() -> new RuntimeException("Пользователя с указанной почтой не существует!"));
+        String newToken = jwtUtil.generateToken(email, user.getRole().getRole_id());
+
+        kafkaProducerService.sendUserForgotEvent(user.getPendingLogin(), newToken);
+        response.put("message", "Письмо с инструкцией по восстановлению пароля отправлено на указанный адрес электронной почты!");
+        return CompletableFuture.completedFuture(ResponseEntity.ok(response));
+    }
+
+    @Async
+    public CompletableFuture<ResponseEntity<Map<String, Object>>> resetPassword(String token, ResetPasswordDTO resetPasswordDTO) {
+        Map<String, Object> response = new HashMap<>();
+        if (resetPasswordDTO.getPassword().length() < 8) {
+            response.put("message", "Пароль должен содержать минимум 8 символов!");
+        }
+        if (!resetPasswordDTO.passwordsMatch()) {
+            response.put("message", "Ошибка! Пароли не совпадают!");
+        }
+
+        String email = jwtUtil.extractUsername(token);
+        Optional<User> userOpt = userRepository.findByLogin(email);
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            user.setPassword(bCryptPasswordEncoder.encode(resetPasswordDTO.getPassword())); // ставим новый пароль
+            userRepository.save(user);
+            response.put("success", true);
+            response.put("message", "Пароль успешно изменён!");
+            return CompletableFuture.completedFuture(ResponseEntity.ok(response));
+        } else {
+            response.put("success", false);
+            response.put("message", "Пользователя не существует!");
+            return CompletableFuture.completedFuture(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response));
+        }
+    }
+
     // METHODS
     private String extractToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
@@ -275,6 +314,7 @@ public class UserService {
 
         return jwtUtil.generateToken(user.getLogin(), user.getRole().getRole_id());
     }
+
 
     private static final String EMAIL_REGEX = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
 
