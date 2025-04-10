@@ -5,20 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cec22246-d7c5-4b7e-b2b7-e63597192da5" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/demo/src/main/resources/logback-spring.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../auth-service/demo/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../auth-service/demo/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../auth-service/demo/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../auth-service/demo/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../company-vacancy-service/demo/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../company-vacancy-service/demo/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../company-vacancy-service/demo/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/../company-vacancy-service/demo/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../docker-compose.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../nginx/conf.d/gateway.conf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../nginx/logs/access.log" beforeDir="false" afterPath="$PROJECT_DIR$/../nginx/logs/access.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../nginx/logs/error.log" beforeDir="false" afterPath="$PROJECT_DIR$/../nginx/logs/error.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../nginx/nginx.conf" beforeDir="false" afterPath="$PROJECT_DIR$/../nginx/nginx.conf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../auth-service/demo/src/main/java/net/javaguides/springboot/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../auth-service/demo/src/main/java/net/javaguides/springboot/controller/AuthController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../auth-service/demo/src/main/java/net/javaguides/springboot/service/KafkaProducerService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../auth-service/demo/src/main/java/net/javaguides/springboot/service/KafkaProducerService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../auth-service/demo/src/main/java/net/javaguides/springboot/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../auth-service/demo/src/main/java/net/javaguides/springboot/service/AuthService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../company-vacancy-service/demo/src/main/java/net/javaguides/springboot/controller/CompanyController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../company-vacancy-service/demo/src/main/java/net/javaguides/springboot/controller/CompanyController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../company-vacancy-service/demo/src/main/java/net/javaguides/springboot/service/VacancyService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../company-vacancy-service/demo/src/main/java/net/javaguides/springboot/service/VacancyService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/demo/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/src/main/java/com/example/demo/service/EmailService.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/com/example/demo/service/EmailService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -95,6 +88,7 @@
       <workItem from="1741523010546" duration="1208000" />
       <workItem from="1743175544110" duration="44000" />
       <workItem from="1743176359628" duration="2625000" />
+      <workItem from="1744064346047" duration="1171000" />
     </task>
     <servers />
   </component>

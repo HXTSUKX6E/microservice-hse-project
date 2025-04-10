@@ -54,6 +54,20 @@ public class EmailService {
         }
     }
 
+    @KafkaListener(topics = "user-forgot-event", groupId = "user-forgot-event")
+    public void listenForgotEmail(String message) {
+        try {
+            // Десериализация JSON в DTO
+            UserRegistrationEvent event = objectMapper.readValue(message, UserRegistrationEvent.class);
+
+            // Логика обработки события (отправка уведомления)
+            sendForgotEmail(event.getLogin(), event.getToken());
+
+        } catch (Exception e) {
+            logger.error("An error occurred", e);
+        }
+    }
+
     @Async
     public void sendConfirmationChangeEmail(String to, String token) {
         String subject = "Подтверждение изменения ";
@@ -78,6 +92,22 @@ public class EmailService {
         email.setTo(to);
         email.setSubject(subject);
         email.setText(message);
+
+        mailSender.send(email);
+    }
+
+    @Async
+    public void sendForgotEmail(String to, String token) {
+        String subject = "Восстановление аккаунта";
+        String confirmationUrl = "http://localhost/api/auth/confirm-reset-password?token=" + token;
+        String message = "Для восстановления аккаунта следуйте инструкции по ссылке: " + confirmationUrl;
+        String msg= "Если вы не пытались изменить пароль проигнорируйте данное сообщение!";
+
+        SimpleMailMessage email = new SimpleMailMessage();
+        email.setTo(to);
+        email.setSubject(subject);
+        email.setText(message);
+        email.setText(msg);
 
         mailSender.send(email);
     }
