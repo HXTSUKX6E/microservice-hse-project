@@ -73,12 +73,12 @@ public class AuthController {
 
     // password recovery
     @PostMapping("/forgot-password")
-    public ResponseEntity<Map<String, Object>> requestPasswordReset(@RequestParam String email) throws ExecutionException, InterruptedException {
-        return authService.forgotPassword(email).get();
+    public ResponseEntity<Map<String, Object>> requestPasswordReset(@RequestBody Map<String, String> loginRequest) throws ExecutionException, InterruptedException {
+        return authService.forgotPassword(loginRequest).get();
     }
 
     @PostMapping("/confirm-reset-password")
-    public ResponseEntity<Map<String, Object>> confirmPasswordReset(@RequestParam String token, @RequestBody ResetPasswordDTO resetPasswordDTO) throws ExecutionException, InterruptedException {
+    public ResponseEntity<Map<String, Object>> confirmPasswordReset(@RequestParam String token, @RequestBody @Valid ResetPasswordDTO resetPasswordDTO) throws ExecutionException, InterruptedException {
         return authService.resetPassword(token, resetPasswordDTO).get();
     }
 }

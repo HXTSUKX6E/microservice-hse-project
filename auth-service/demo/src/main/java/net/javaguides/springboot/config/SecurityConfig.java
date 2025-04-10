@@ -56,11 +56,11 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/login").permitAll()
                         .requestMatchers("/api/auth/confirm").permitAll()
                         .requestMatchers("/api/auth/confirm-email-change").permitAll()
+                        .requestMatchers("/api/auth/forgot-password").permitAll()
+                        .requestMatchers("/api/auth/confirm-reset-password").permitAll()
                         .anyRequest().authenticated() // Запросы с аутентификацией
 
                 )
-
-
                 .exceptionHandling(httpExceptionHandling ->
                         httpExceptionHandling.accessDeniedHandler(customAccessDeniedHandler)
                 )

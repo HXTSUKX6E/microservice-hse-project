@@ -218,9 +218,11 @@ public class AuthService {
     }
 
     @Async
-    public CompletableFuture<ResponseEntity<Map<String, Object>>> forgotPassword(String email) {
+    public CompletableFuture<ResponseEntity<Map<String, Object>>> forgotPassword(Map<String, String> loginRequest) {
         Map<String, Object> response = new HashMap<>();
+        String email = loginRequest.get("login");
         if (isValidEmail(email)) {
+            response.put("success", false);
             response.put("message", "Введён некорректный email! Повторите попытку.");
             return CompletableFuture.completedFuture(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response));
         }
@@ -229,7 +231,7 @@ public class AuthService {
                 .orElseThrow(() -> new RuntimeException("Пользователя с указанной почтой не существует!"));
         String newToken = jwtUtil.generateToken(email, user.getRole().getRole_id());
 
-        kafkaProducerService.sendUserForgotEvent(user.getPendingLogin(), newToken);
+        kafkaProducerService.sendUserForgotEvent(user.getLogin(), newToken);
         response.put("message", "Письмо с инструкцией по восстановлению пароля отправлено на указанный адрес электронной почты!");
         return CompletableFuture.completedFuture(ResponseEntity.ok(response));
     }
@@ -239,9 +241,11 @@ public class AuthService {
         Map<String, Object> response = new HashMap<>();
         if (resetPasswordDTO.getPassword().length() < 8) {
             response.put("message", "Пароль должен содержать минимум 8 символов!");
+            return CompletableFuture.completedFuture(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response));
         }
         if (!resetPasswordDTO.passwordsMatch()) {
             response.put("message", "Ошибка! Пароли не совпадают!");
+            return CompletableFuture.completedFuture(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response));
         }
 
         String email = jwtUtil.extractUsername(token);
