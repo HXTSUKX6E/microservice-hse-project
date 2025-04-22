@@ -9,6 +9,7 @@ import net.javaguides.springboot.dto.CompanyOneDto;
 import net.javaguides.springboot.service.CompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -30,10 +31,12 @@ import net.javaguides.springboot.repository.CompanyRepository;
 public class CompanyController {
 
     private final CompanyService companyService;
+    private final ConversionService conversionService;
 
     @Autowired
-    public CompanyController(CompanyService companyService) {
+    public CompanyController(CompanyService companyService, ConversionService conversionService) {
         this.companyService = companyService;
+        this.conversionService = conversionService;
     }
 
     // get all info about companies
@@ -44,9 +47,11 @@ public class CompanyController {
     }
 
     // create a company
-    @PreAuthorize("hasRole('ROLE_1')")
+    @PreAuthorize("hasRole('ROLE_3') || hasRole('ROLE_1')")
     @PostMapping("/company")
     public Company createCompany(@RequestBody @Valid Company company) throws ExecutionException, InterruptedException {
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        company.setUser(currentUsername); // ставим поле владельца
         return companyService.createCompany(company).get();
     }
 

@@ -36,6 +36,8 @@ public class VacancyService {
         // Находим компанию по companyId
         Company company = companyRepository.findById(vacancyDto.getCompany_id())
                 .orElseThrow(() -> new ResourceNotFoundException("Компания не найдена!"));
+
+        // if (!company.getIs_accepted())
         Vacancy vacancy = new Vacancy(vacancyDto);
         vacancy.setCompany(company);
 

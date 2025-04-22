@@ -8,6 +8,7 @@ import net.javaguides.springboot.model.Company;
 import net.javaguides.springboot.repository.CompanyRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -34,6 +35,7 @@ public class CompanyService {
     @Async
     public CompletableFuture<Company> createCompany(Company company) {
         log.info("service create company");
+
         return CompletableFuture.completedFuture(companyRepository.save(company));
     }
 
