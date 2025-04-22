@@ -31,12 +31,10 @@ import net.javaguides.springboot.repository.CompanyRepository;
 public class CompanyController {
 
     private final CompanyService companyService;
-    private final ConversionService conversionService;
 
     @Autowired
-    public CompanyController(CompanyService companyService, ConversionService conversionService) {
+    public CompanyController(CompanyService companyService) {
         this.companyService = companyService;
-        this.conversionService = conversionService;
     }
 
     // get all info about companies

@@ -1,5 +1,6 @@
 package net.javaguides.springboot;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -7,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import net.javaguides.springboot.config.SecurityConfig;
 import net.javaguides.springboot.dto.CompanyOneDto;
 import net.javaguides.springboot.exception.ResourceNotFoundException;
 import net.javaguides.springboot.model.Company;
@@ -17,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -32,14 +35,15 @@ import org.springframework.web.context.WebApplicationContext;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Slf4j
 @Testcontainers
 public class CompanyControllerTest {
@@ -54,8 +58,8 @@ public class CompanyControllerTest {
         registry.add("spring.datasource.password", postgres::getPassword);
     }
 
-    @Autowired
-    private WebApplicationContext context;
+//    @Autowired
+//    private WebApplicationContext context;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -64,20 +68,19 @@ public class CompanyControllerTest {
     private MockMvc mockMvc;
 
     @MockitoBean
-    private CompanyService companyService;
+    private final CompanyService companyService;
 
     private String token;
 
-    @BeforeEach
-    public void setUp() {
-        mockMvc = MockMvcBuilders
-                .webAppContextSetup(this.context)
-                .apply(springSecurity()) // Включаем поддержку Spring Security
-                .build();
+    @Autowired
+    public CompanyControllerTest(CompanyService companyService) {
+        this.companyService = companyService;
     }
 
     @Test
-    void contextLoads() {}
+    void contextLoads() {
+        assertNotNull(mockMvc);
+    }
 
     // Company-test-getAll
     @Test
