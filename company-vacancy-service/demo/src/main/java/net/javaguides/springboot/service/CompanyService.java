@@ -35,7 +35,6 @@ public class CompanyService {
     @Async
     public CompletableFuture<Company> createCompany(Company company) {
         log.info("service create company");
-
         return CompletableFuture.completedFuture(companyRepository.save(company));
     }
 

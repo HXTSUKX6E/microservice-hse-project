@@ -20,6 +20,4 @@ public class Achievement {
     @Column(nullable = false)
     private String imageUrl;  // Ссылка на изображение в облаке
 
-    private LocalDateTime uploadedAt;
-
 }

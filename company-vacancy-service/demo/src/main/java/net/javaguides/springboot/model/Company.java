@@ -48,7 +48,7 @@ public class Company {
 
     private Boolean is_accepted = false;
 
-    private String user;
+    private String userName;
 
     @OneToMany(mappedBy = "company", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.EAGER)
     //@JsonIgnoreProperties({"company"})

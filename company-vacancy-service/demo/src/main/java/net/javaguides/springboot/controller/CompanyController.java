@@ -49,7 +49,7 @@ public class CompanyController {
     @PostMapping("/company")
     public Company createCompany(@RequestBody @Valid Company company) throws ExecutionException, InterruptedException {
         String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
-        company.setUser(currentUsername); // ставим поле владельца
+        company.setUserName(currentUsername); // ставим поле владельца
         return companyService.createCompany(company).get();
     }
 
