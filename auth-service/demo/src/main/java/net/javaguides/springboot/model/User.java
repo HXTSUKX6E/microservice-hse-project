@@ -32,7 +32,7 @@ public class User {
     @Column(nullable = false)
     private Boolean enabled = false; // from email
 
-    private Long company_id;
+    // private Long company_id;
 
     public User() {
     }

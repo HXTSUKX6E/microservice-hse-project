@@ -264,6 +264,21 @@ public class AuthService {
         }
     }
 
+//    @Async
+//    public CompletableFuture<ResponseEntity<Map<String, Object>>> getInfoAboutUser(Long id, String currentUsername) {
+//        User user = userRepository.findById(id)
+//                .orElseThrow(() -> new RuntimeException("Пользователь не найден!"));
+//        Map<String, Object> response = new HashMap<>();
+//        if (!user.getLogin().equals(currentUsername)) {
+//            response.put("message", "Нет доступа!");
+//            return CompletableFuture.completedFuture(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response));
+//        }
+//        response.put("user_id", user.getUser_id());
+//        response.put("login", user.getLogin());
+//        kafkaProducerService.sendUserChangeEvent(existingUser.getPendingLogin(), newToken);
+//        return CompletableFuture.completedFuture(ResponseEntity.ok(response));
+//    }
+
     // METHODS
     private String extractToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
@@ -295,7 +310,7 @@ public class AuthService {
         User newUser = new User(user.getLogin(), hashedPassword, user.getRole());
         newUser.setEnabled(false);
         newUser.setPendingLogin(null);
-        newUser.setCompany_id(null);
+//        newUser.setCompany_id(null);
         Optional<Role> optionalRole = roleRepository.findById(2L);
         if (optionalRole.isPresent()) { newUser.setRole(optionalRole.get()); }
         else { throw new RuntimeException("Роль не найдена!"); }

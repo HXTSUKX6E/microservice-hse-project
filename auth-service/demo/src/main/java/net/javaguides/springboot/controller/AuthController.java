@@ -81,4 +81,10 @@ public class AuthController {
     public ResponseEntity<Map<String, Object>> confirmPasswordReset(@RequestParam String token, @RequestBody @Valid ResetPasswordDTO resetPasswordDTO) throws ExecutionException, InterruptedException {
         return authService.resetPassword(token, resetPasswordDTO).get();
     }
+
+//    @GetMapping("/profile/{id}")
+//    public ResponseEntity<Map<String, Object>> getProfile(@PathVariable Long id) throws ExecutionException, InterruptedException {
+//        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+//        return authService.getInfoAboutUser(id, currentUsername).get();
+//    }
 }
