@@ -2,16 +2,19 @@ package net.javaguides.springboot.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import net.javaguides.springboot.dto.UserChangeCompany;
+import net.javaguides.springboot.dto.ResponseNotificationEvent;
+import net.javaguides.springboot.model.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 public class KafkaProducerService {
-    private static final String TOPIC_USER_COMPANY_ASSIGNED = "user.updated.company";
+    private static final String TOPIC_RESPONSE = "response-notifications";
     private final ObjectMapper objectMapper;
     private final KafkaTemplate<String, String> kafkaTemplate;
 
@@ -23,14 +26,16 @@ public class KafkaProducerService {
         this.objectMapper = objectMapper;
     }
 
-    public void sendUserInfoFromChangeCompany(Long id, Long company_id) {
-        UserChangeCompany event = new UserChangeCompany();
-        event.setId(id);
-        event.setCompanyId(company_id);
+    public void sendResponseNotification(String username, Response response) {
+
+        ResponseNotificationEvent event = ResponseNotificationEvent.builder()
+                .username(username)
+                .response(response)
+                .build();
 
         try {
             String message = objectMapper.writeValueAsString(event); // Сериализация в JSON
-            kafkaTemplate.send(TOPIC_USER_COMPANY_ASSIGNED, message); // Отправка в Kafka
+            kafkaTemplate.send(TOPIC_RESPONSE, message); // Отправка в Kafka
         } catch (JsonProcessingException e) {
             logger.error("An error occurred", e);
         }

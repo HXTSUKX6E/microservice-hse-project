@@ -6,6 +6,7 @@ import net.javaguides.springboot.model.Response;
 import net.javaguides.springboot.service.ResponseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,6 +37,13 @@ public class ResponseController {
     public List<Response> getAllResponsesByUser() throws ExecutionException, InterruptedException {
         String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
         return responseService.getAllResponsesByUser(currentUsername).get();
+    }
+
+    @PreAuthorize("hasRole('ROLE_3') || hasRole('ROLE_1')")
+    @GetMapping("/responses/{id}")
+    public List<Response> getAllResponsesByVacancy(@PathVariable Long id) throws ExecutionException, InterruptedException {
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        return responseService.getAllResponsesByVacancy(id, currentUsername).get();
     }
 
 }

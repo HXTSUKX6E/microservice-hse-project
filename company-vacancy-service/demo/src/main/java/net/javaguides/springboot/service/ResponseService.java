@@ -9,6 +9,7 @@ import net.javaguides.springboot.repository.ResponseRepository;
 import net.javaguides.springboot.repository.VacancyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,11 +21,13 @@ public class ResponseService {
 
     private final ResponseRepository responseRepository;
     private final VacancyRepository vacancyRepository;
+    private final KafkaProducerService kafkaProducerService;
 
     @Autowired
-    public ResponseService(ResponseRepository responseRepository, VacancyRepository vacancyRepository) {
+    public ResponseService(ResponseRepository responseRepository, VacancyRepository vacancyRepository , KafkaProducerService kafkaProducerService) {
         this.responseRepository = responseRepository;
         this.vacancyRepository = vacancyRepository;
+        this.kafkaProducerService = kafkaProducerService;
     }
 
     @Async
@@ -35,14 +38,34 @@ public class ResponseService {
 
         response.setUserName(userName);
         response.setVacancy(vacancy);
+        // логика отправки в notification-service:
+        kafkaProducerService.sendResponseNotification(userName, response);
         return CompletableFuture.completedFuture(responseRepository.save(response));
     }
 
     @Async
-    public CompletableFuture<List<Response>>getAllResponsesByUser(String username) {
-        return CompletableFuture.completedFuture(responseRepository.findByUser(username));
+    public CompletableFuture<List<Response>> getAllResponsesByUser(String username) {
+        return CompletableFuture.supplyAsync(() -> {
+            List<Response> responses = responseRepository.findByUser(username);
+
+            // Модифицируем каждое поле
+            responses.forEach(response -> {
+                response.setViewed(true); // Устанавливаем поле viewed в true
+            });
+
+            return responseRepository.saveAll(responses); // Сохраняем изменения
+        });
     }
 
-    
+    @Async
+    public CompletableFuture<List<Response>>getAllResponsesByVacancy(Long vacancyId, String username) {
+        Vacancy vacancy = vacancyRepository.findById(vacancyId)
+                .orElseThrow(() -> new ResourceNotFoundException("Вакансия не найдена!"));
+        Company company = vacancy.getCompany();
+        if (!company.getUserName().equals(username)) {
+            throw new AccessDeniedException("Только создатель компании может просматривать отклики!");
+        }
+        return CompletableFuture.completedFuture(responseRepository.findByVacancy(vacancy));
+    }
 
 }
