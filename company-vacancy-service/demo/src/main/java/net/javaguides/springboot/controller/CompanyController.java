@@ -22,7 +22,7 @@ import net.javaguides.springboot.exception.ResourceNotFoundException;
 import net.javaguides.springboot.model.Company;
 import net.javaguides.springboot.repository.CompanyRepository;
 
-@CrossOrigin(origins = "http://localhost:5432")
+@CrossOrigin(origins = "*")
 @RestController
 @EnableAsync
 @Slf4j
