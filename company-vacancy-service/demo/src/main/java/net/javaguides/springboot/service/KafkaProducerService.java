@@ -26,11 +26,12 @@ public class KafkaProducerService {
         this.objectMapper = objectMapper;
     }
 
-    public void sendResponseNotification(String username, Response response) {
+    public void sendResponseNotification(String username, String name, String email) {
 
         ResponseNotificationEvent event = ResponseNotificationEvent.builder()
                 .username(username)
-                .response(response)
+                .response(name)
+                .email(email)
                 .build();
 
         try {

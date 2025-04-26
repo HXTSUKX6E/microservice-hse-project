@@ -39,7 +39,7 @@ public class ResponseService {
         response.setUserName(userName);
         response.setVacancy(vacancy);
         // логика отправки в notification-service:
-        kafkaProducerService.sendResponseNotification(userName, response);
+        kafkaProducerService.sendResponseNotification(userName, vacancy.getName(), vacancy.getCompany().getUserName());
         return CompletableFuture.completedFuture(responseRepository.save(response));
     }
 

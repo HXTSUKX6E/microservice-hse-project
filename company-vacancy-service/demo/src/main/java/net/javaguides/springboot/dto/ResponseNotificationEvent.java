@@ -10,5 +10,6 @@ import net.javaguides.springboot.model.Response;
 @NoArgsConstructor
 public class ResponseNotificationEvent {
     private String username;  // Имя пользователя
-    private Response response; // Полный объект Response
+    private String response; // name вакансии
+    private String email; //куда присылаем
 }
