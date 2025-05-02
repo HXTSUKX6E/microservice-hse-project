@@ -10,7 +10,6 @@ import net.javaguides.springboot.repository.VacancyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -48,7 +47,6 @@ public class ResponseService {
     public CompletableFuture<List<Response>> getAllResponsesByUser(String username) {
         return CompletableFuture.supplyAsync(() -> {
             List<Response> responses = responseRepository.findByUserName(username);
-
             // Модифицируем каждое поле
             responses.forEach(response -> {
                 response.setViewed(true); // Устанавливаем поле viewed в true

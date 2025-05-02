@@ -1,6 +1,8 @@
 package net.javaguides.springboot.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -25,13 +27,12 @@ public class Response {
     private Date date;
 
     @JsonIgnore // Игнорируется при десериализации JSON
-    @NotNull
+    @Column(nullable = false, updatable = false)
     private String userName;
 
-    @JsonIgnore
+    @JsonProperty(access = Access.READ_ONLY)
     @ManyToOne
     @JoinColumn(name = "vacancy_id", nullable = false)
-    @NotNull
     private Vacancy vacancy;
 
     @JsonIgnore // Игнорируется при десериализации JSON

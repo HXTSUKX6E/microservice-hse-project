@@ -1,5 +1,6 @@
 package net.javaguides.springboot.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -52,6 +53,7 @@ public class Vacancy {
 
     private Boolean is_educated = false;
 
+    @JsonIgnore
     private Boolean isHidden = false; // open
 
     public Vacancy() {}
