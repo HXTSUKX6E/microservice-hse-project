@@ -10,6 +10,7 @@ import net.javaguides.springboot.repository.VacancyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,7 +34,7 @@ public class ResponseService {
     @Async
     public CompletableFuture<Response> createResponse(Response response, String userName, Long vacancyId) {
 
-        Vacancy vacancy = vacancyRepository.findByIdAndIsHiddenTrue(vacancyId)
+        Vacancy vacancy = vacancyRepository.findByIdAndHidden(vacancyId)
                 .orElseThrow(() -> new ResourceNotFoundException("Вакансии не существует!"));
 
         response.setUserName(userName);
@@ -46,7 +47,7 @@ public class ResponseService {
     @Async
     public CompletableFuture<List<Response>> getAllResponsesByUser(String username) {
         return CompletableFuture.supplyAsync(() -> {
-            List<Response> responses = responseRepository.findByUser(username);
+            List<Response> responses = responseRepository.findByUserName(username);
 
             // Модифицируем каждое поле
             responses.forEach(response -> {

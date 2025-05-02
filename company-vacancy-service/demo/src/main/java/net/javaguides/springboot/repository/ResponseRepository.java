@@ -10,7 +10,7 @@ import java.util.List;
 
 @Repository
 public interface ResponseRepository extends JpaRepository<Response, Long> {
-    List<Response> findByUser(String username);
+    List<Response> findByUserName(@NotNull String userName);
 
     List<Response> findByVacancy(Vacancy vacancy);
 }
