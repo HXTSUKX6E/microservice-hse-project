@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.ResponseNotificationEvent;
 import com.example.demo.dto.UserRegistrationEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -68,6 +69,23 @@ public class EmailService {
         }
     }
 
+
+    @KafkaListener(topics = "response-notifications", groupId = "response-notifications")
+    public void listenAddResponse(String message) {
+        try {
+            // Десериализация JSON в DTO
+            ResponseNotificationEvent event = objectMapper.readValue(message, ResponseNotificationEvent.class);
+
+            // Логика обработки события (отправка уведомления)
+            sendMsgAboutResponse(event.getUsername(), event.getResponseName(), event.getEmail());
+
+        } catch (Exception e) {
+            logger.error("An error occurred", e);
+        }
+    }
+
+
+
     @Async
     public void sendConfirmationChangeEmail(String to, String token) {
         String subject = "Подтверждение изменения ";
@@ -100,14 +118,32 @@ public class EmailService {
     public void sendForgotEmail(String to, String token) {
         String subject = "Восстановление аккаунта";
         String confirmationUrl = "http://localhost/api/auth/confirm-reset-password?token=" + token;
-        String message = "Для восстановления аккаунта следуйте инструкции по ссылке: " + confirmationUrl;
-        String msg= "Если вы не пытались изменить пароль проигнорируйте данное сообщение!";
+        String message = "Для восстановления аккаунта следуйте инструкции по ссылке: " + confirmationUrl + "\nЕсли вы не пытались изменить пароль проигнорируйте данное сообщение!";
 
         SimpleMailMessage email = new SimpleMailMessage();
         email.setTo(to);
         email.setSubject(subject);
         email.setText(message);
-        email.setText(msg);
+
+        mailSender.send(email);
+    }
+
+    @Async
+    public void sendMsgAboutResponse(String username, String responseName, String to) {
+        String subject = "Новый отклик на вакансию " + responseName;
+        String message = String.format(
+                "Уважаемый работодатель,\n" +
+                        "На вашу вакансию «%s» откликнулся новый кандидат.\n\n" +
+                        "Контактные данные для связи:\n" +
+                        "📧 Email: %s\n\n" +
+                        "Это автоматическое уведомление. Пожалуйста, не отвечайте на это письмо.",
+                responseName, username
+        );
+
+        SimpleMailMessage email = new SimpleMailMessage();
+        email.setTo(to);
+        email.setSubject(subject);
+        email.setText(message);
 
         mailSender.send(email);
     }
