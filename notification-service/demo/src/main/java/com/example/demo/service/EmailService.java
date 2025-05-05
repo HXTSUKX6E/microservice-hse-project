@@ -3,6 +3,7 @@ package com.example.demo.service;
 import com.example.demo.dto.ResponseNotificationEvent;
 import com.example.demo.dto.UserRegistrationEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class EmailService {
 
     private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
@@ -76,8 +78,10 @@ public class EmailService {
             // Десериализация JSON в DTO
             ResponseNotificationEvent event = objectMapper.readValue(message, ResponseNotificationEvent.class);
 
+            log.info("Событие пришло");
+
             // Логика обработки события (отправка уведомления)
-            sendMsgAboutResponse(event.getUsername(), event.getResponseName(), event.getEmail());
+            sendMsgAboutResponse(event.getUsername(), event.getResponse(), event.getEmail());
 
         } catch (Exception e) {
             logger.error("An error occurred", e);

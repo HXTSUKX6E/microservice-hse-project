@@ -13,6 +13,6 @@ import java.util.Date;
 @Data
 public class ResponseNotificationEvent {
     private String username;
-    private String responseName;
+    private String response;
     private String email;
 }
