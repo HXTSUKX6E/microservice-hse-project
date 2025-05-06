@@ -34,7 +34,7 @@ export default function ResetPasswordPage() {
         resolver: zodResolver(resetPasswordSchema)
     })
 
-    const onSubmit = async (data) => {
+    const onSubmit = async (data: { password: any; repeatPassword: any }) => {
         if (!token) {
             setError('root', { message: 'Недействительная ссылка для сброса пароля' })
             return

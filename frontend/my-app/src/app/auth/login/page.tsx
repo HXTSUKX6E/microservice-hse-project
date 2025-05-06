@@ -10,7 +10,7 @@ import { useState } from 'react'
 // Схема валидации
 const loginSchema = z.object({
     login: z.string().email('Некорректный email'),
-    password: z.string().min(3, 'Пароль должен содержать минимум 8 символов') //исправить
+    password: z.string().min(8, 'Пароль должен содержать минимум 8 символов')
 })
 
 type LoginFormData = z.infer<typeof loginSchema>
@@ -30,42 +30,71 @@ export default function LoginPage() {
     const onSubmit = async (data: LoginFormData) => {
         setIsLoading(true)
         try {
-            const response = await axios.post('http://localhost/api/auth/login', data, {
+            const response = await axios.post('http://localhost/api/auth/login', {
+                login: data.login,
+                password: data.password
+            }, {
                 timeout: 5000 // 5 секунд таймаут
             })
 
-            if (!response.data.token) {
-                 new Error('Неверный формат ответа сервера')
+            if (response.data.authenticated && response.data.token) {
+                localStorage.setItem('token', response.data.token)
+                router.push('/dashboard')
+            } else {
+                setError('root', {
+                    message: 'Ошибка аутентификации. Попробуйте снова'
+                })
             }
-
-            localStorage.setItem('token', response.data.token)
-            router.push('/dashboard')
 
         } catch (error) {
             if (axios.isAxiosError(error)) {
                 // Ошибки Axios
                 if (error.code === 'ECONNABORTED') {
-                    setError('root', { message: 'Таймаут соединения' })
+                    setError('root', {
+                        message: 'Таймаут соединения. Попробуйте позже'
+                    })
                 } else if (error.response) {
                     // Ошибки от сервера
                     const status = error.response.status
-                    const serverMessage = error.response.data?.message
+                    const responseData = error.response.data
 
-                    if (status === 401) {
-                        setError('root', { message: serverMessage || 'Неверные учетные данные! Повторите попытку...' })
+                    if (status === 403) {
+                        // Аккаунт не подтвержден
+                        setError('root', {
+                            message: responseData.error || 'Аккаунт не подтвержден. Проверьте почту.'
+                        })
+                    } else if (status === 401) {
+                        // Неверные учетные данные
+                        setError('root', {
+                            message: responseData.error || 'Неверный email или пароль! Повторите попытку...'
+                        })
                     } else if (status === 400) {
-                        setError('root', { message: serverMessage || 'Некорректный запрос' })
+                        // Некорректный запрос
+                        setError('root', {
+                            message: responseData.error || 'Некорректные данные'
+                        })
                     } else if (status >= 500) {
-                        setError('root', { message: 'Ошибка сервера. Попробуйте позже' })
+                        // Серверные ошибки
+                        setError('root', {
+                            message: 'Ошибка сервера. Попробуйте позже'
+                        })
                     }
                 } else if (error.request) {
-                    setError('root', { message: 'Нет ответа от сервера' })
+                    // Нет ответа от сервера
+                    setError('root', {
+                        message: 'Нет ответа от сервера. Проверьте интернет-соединение'
+                    })
                 }
             } else if (error instanceof Error) {
                 // Другие JavaScript ошибки
-                setError('root', { message: error.message })
+                setError('root', {
+                    message: error.message
+                })
             } else {
-                setError('root', { message: 'Неизвестная ошибка' })
+                // Неизвестные ошибки
+                setError('root', {
+                    message: 'Неизвестная ошибка при входе'
+                })
             }
         } finally {
             setIsLoading(false)
