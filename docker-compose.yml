@@ -94,6 +94,7 @@ services:
       kafka:
         condition: service_healthy
     environment:
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       SPRING_DATASOURCE_URL: jdbc:postgresql://company-vacancy-db:5432/CompVacDb
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: 12345678
