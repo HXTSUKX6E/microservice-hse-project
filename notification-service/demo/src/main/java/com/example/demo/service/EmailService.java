@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
@@ -120,16 +121,30 @@ public class EmailService {
 
     @Async
     public void sendForgotEmail(String to, String token) {
-        String subject = "Восстановление аккаунта";
-        String confirmationUrl = "http://localhost/api/auth/confirm-reset-password?token=" + token;
-        String message = "Для восстановления аккаунта следуйте инструкции по ссылке: " + confirmationUrl + "\nЕсли вы не пытались изменить пароль проигнорируйте данное сообщение!";
+        String subject = "Восстановление пароля";
+        String resetUrl = "http://localhost:3000/auth/reset-password?token=" + token;
+
+        String textContent = """
+        Здравствуйте!
+        
+        Для восстановления пароля перейдите по ссылке:
+        %s
+        
+        Ссылка действительна в течение 24 часов.
+        
+        Если вы не запрашивали восстановление пароля, проигнорируйте это письмо.
+        """.formatted(resetUrl);
 
         SimpleMailMessage email = new SimpleMailMessage();
         email.setTo(to);
         email.setSubject(subject);
-        email.setText(message);
+        email.setText(textContent);
 
-        mailSender.send(email);
+        try {
+            mailSender.send(email);
+        } catch (MailException e) {
+            logger.error("Ошибка при отправке письма для восстановления пароля", e);
+        }
     }
 
     @Async
