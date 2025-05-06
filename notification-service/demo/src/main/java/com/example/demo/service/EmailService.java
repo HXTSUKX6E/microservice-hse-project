@@ -107,16 +107,30 @@ public class EmailService {
 
     @Async
     public void sendVerificationEmail(String to, String token) {
-        String subject = "Подтверждение регистрации";
-        String confirmationUrl = "http://localhost/api/auth/confirm?token=" + token;
-        String message = "Перейдите по ссылке для подтверждения верификации аккаунта: " + confirmationUrl;
+        String subject = "Подтверждение email";
+        String confirmationUrl = "http://localhost:3000/auth/confirm?token=" + token;
+
+        String textContent = """
+    Здравствуйте!
+    
+    Для подтверждения вашего email перейдите по ссылке:
+    %s
+    
+    Ссылка действительна в течение 24 часов.
+    
+    Если вы не регистрировались на нашем сервисе, проигнорируйте это письмо.
+    """.formatted(confirmationUrl);
 
         SimpleMailMessage email = new SimpleMailMessage();
         email.setTo(to);
         email.setSubject(subject);
-        email.setText(message);
+        email.setText(textContent);
 
-        mailSender.send(email);
+        try {
+            mailSender.send(email);
+        } catch (MailException e) {
+            logger.error("Ошибка при отправке письма с подтверждением email", e);
+        }
     }
 
     @Async
