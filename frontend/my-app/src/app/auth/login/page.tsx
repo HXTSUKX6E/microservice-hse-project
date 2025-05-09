@@ -39,7 +39,7 @@ export default function LoginPage() {
 
             if (response.data.authenticated && response.data.token) {
                 localStorage.setItem('token', response.data.token)
-                router.push('/dashboard')
+                router.push('/main/main-page')
             } else {
                 setError('root', {
                     message: 'Ошибка аутентификации. Попробуйте снова'
