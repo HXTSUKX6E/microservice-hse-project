@@ -11,11 +11,15 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.task.DelegatingSecurityContextAsyncTaskExecutor;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 
 @EnableGlobalMethodSecurity(prePostEnabled = true)  // Включает поддержку @PreAuthorize
@@ -40,7 +44,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // Отключение CSRF
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(AbstractHttpConfigurer::disable) // Отключение CSRF
                 .authorizeHttpRequests(auth -> auth
                         .anyRequest().authenticated() // Запросы с аутентификацией
 
@@ -51,6 +56,22 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    // Источник конфигурации CORS
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration corsConfiguration = new CorsConfiguration();
+        corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000"));  // Указываем разрешенные источники
+        corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));  // Разрешенные методы
+        corsConfiguration.setAllowedHeaders(List.of("*"));  // Разрешаем все заголовки
+        corsConfiguration.setAllowCredentials(true);  // Разрешаем использование куки
+        corsConfiguration.setMaxAge(3600L);  // Время жизни предзапроса
+
+        org.springframework.web.cors.UrlBasedCorsConfigurationSource source = new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/api/**", corsConfiguration);  // Указываем, что конфигурация применяется к запросам по пути /api/**
+
+        return source;
     }
 
     @Bean
