@@ -144,18 +144,29 @@ export default function HomePage() {
                     <>
                         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                             {currentVacancies.map((vacancy) => (
-                                <Link
+                                <div
                                     key={vacancy.vacancy_id}
-                                    href={`/vacancies/${vacancy.vacancy_id}`}
                                     className="bg-white overflow-hidden shadow rounded-lg flex flex-col hover:shadow-lg transition-shadow"
                                 >
-                                    <div className="px-4 py-5 sm:p-6 flex-grow">
-                                        <h3 className="text-lg font-bold text-blue-700">{vacancy.title || 'Без названия'}</h3>
+                                    {/* Основной контент карточки с обработчиком клика */}
+                                    <div
+                                        className="px-4 py-5 sm:p-6 flex-grow cursor-pointer"
+                                        onClick={() => router.push(`/vacancies/${vacancy.vacancy_id}`)}
+                                    >
+                                        <h3 className="text-lg font-bold text-blue-700">{vacancy.name || 'Без названия'}</h3>
 
                                         <div className="mt-4 space-y-2">
-                                            <div className="text-black text-2xl font-semibold">
+                                            {/* Название компании с отдельным обработчиком клика */}
+                                            <div
+                                                className="text-black text-2xl font-semibold hover:text-blue-600 transition-colors cursor-pointer"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    router.push(`/companies/${vacancy.company.company_id}`);
+                                                }}
+                                            >
                                                 {vacancy.company.name}
                                             </div>
+
                                             <div className="text-black text-lg">
                                                 {getValue(vacancy.hours) !== 'Не указано' && (
                                                     <div className="text-black text-lg font-serif">
@@ -163,25 +174,31 @@ export default function HomePage() {
                                                     </div>
                                                 )}
                                             </div>
+
                                             <div className="text-black">
                                                 <span className="font-medium text-blue-600">Адрес:</span> {getValue(vacancy.address)}
                                             </div>
+
                                             <div className="text-black">
                                                 <span className="font-medium text-blue-600">График:</span> {getValue(vacancy.schedule)}
                                             </div>
                                         </div>
                                     </div>
 
-                                    {/* Кнопка отклика */}
+                                    {/* Кнопка отклика с остановкой propagation */}
                                     <div className="mt-auto px-4 py-2">
                                         <button
                                             type="button"
                                             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                // Логика обработки отклика
+                                            }}
                                         >
                                             Откликнуться
                                         </button>
                                     </div>
-                                </Link>
+                                </div>
                             ))}
                         </div>
 

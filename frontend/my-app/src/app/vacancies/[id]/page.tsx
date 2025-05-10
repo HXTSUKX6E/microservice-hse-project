@@ -40,6 +40,7 @@ export default function VacancyPage() {
     const id = params.id
     const [vacancy, setVacancy] = useState<Vacancy | null>(null)
     const [loading, setLoading] = useState(true)
+    const [error, setError] = useState<string | null>(null)
 
     useEffect(() => {
         const token = localStorage.getItem('token')
@@ -51,28 +52,54 @@ export default function VacancyPage() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const token = localStorage.getItem('token')
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    router.push('/auth/login');
+                    return;
+                }
+
                 const response = await axios.get(`http://localhost/api/comp-vac/vacancy/${id}`, {
                     headers: {
                         Authorization: `Bearer ${token}`
+                    },
+                    validateStatus: (status) => {
+                        // Считаем успешными статусы 200-299 и 404
+                        return (status >= 200 && status < 300) || status === 404;
                     }
-                })
-                setVacancy(response.data)
-            } catch (error) {
-                console.error('Ошибка загрузки вакансии:', error)
-                if (axios.isAxiosError(error) && error.response?.status === 401) {
-                    router.push('/auth/login')
+                });
+
+                if (response.status === 404) {
+                    // Обработка случая, когда вакансия не найдена
+                    setVacancy(null);
+                    setError('Вакансия не найдена');
                 } else {
-                    router.push('/')
+                    setVacancy(response.data);
+                    setError(null);
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки вакансии:', error);
+
+                if (axios.isAxiosError(error)) {
+                    if (error.response?.status === 401) {
+                        router.push('/auth/login');
+                    } else if (error.response?.status === 404) {
+                        setVacancy(null);
+                        setError('Вакансия не найдена');
+                    } else {
+                        setError('Произошла ошибка при загрузке данных');
+                        router.push('/main/main-page');
+                    }
+                } else {
+                    setError('Неизвестная ошибка');
+                    router.push('/main/main-page');
                 }
             } finally {
-                setLoading(false)
+                setLoading(false);
             }
-        }
+        };
 
-        void fetchData()
-    }, [id, router])
-
+        void fetchData();
+    }, [id, router]);
     const getValue = (value: string | null) => value || 'Не указано'
 
     // Функция для форматирования даты
@@ -127,7 +154,16 @@ export default function VacancyPage() {
                             <div className="flex justify-between items-start">
                                 <div>
                                     <h1 className="text-2xl font-bold text-blue-700">{vacancy.title || 'Без названия'}</h1>
-                                    <h2 className="text-xl font-semibold mt-2 text-black">{vacancy.company.name}</h2>
+                                    {/* Название компании с отдельным обработчиком клика */}
+                                    <div
+                                        className="text-black text-2xl font-semibold hover:text-blue-600 transition-colors cursor-pointer"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            router.push(`/companies/${vacancy.company.company_id}?from=vacancy&vacancyId=${vacancy?.vacancy_id}`);
+                                        }}
+                                    >
+                                        {vacancy.company.name}
+                                    </div>
                                 </div>
                                 <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
                                     {vacancy.is_educated ? 'Требуется обучение' : 'Обучение не требуется'}
