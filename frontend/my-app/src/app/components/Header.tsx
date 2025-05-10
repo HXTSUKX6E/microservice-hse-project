@@ -4,6 +4,7 @@ import {useEffect, useState} from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
+import AuthGuard from "@/app/components/AuthGuard";
 
 export function Header() {
     const router = useRouter()
@@ -33,6 +34,7 @@ export function Header() {
     }
 
     return (
+        <AuthGuard>
         <div className="relative h-64 bg-gray-200 overflow-hidden shadow-inner" onClick={handleOutsideClick}>
             {slides.map((slide, index) => (
                 <div
@@ -77,13 +79,13 @@ export function Header() {
                 </Link>
             </div>
 
-            <div className="absolute top-4 right-4 z-20">
+            <div className="absolute top-4 right-4 z-20 ">
                 <button
                     onClick={(e) => {
                         e.stopPropagation()
                         setShowProfileMenu(!showProfileMenu)
                     }}
-                    className="bg-gray-200 rounded-full flex text-sm focus:outline-none p-2"
+                    className="bg-gray-200 rounded-full flex text-sm focus:outline-none p-2 cursor-pointer"
                 >
                     <span className="sr-only">Открыть меню профиля</span>
                     <svg
@@ -115,7 +117,7 @@ export function Header() {
                         </Link>
                         <button
                             onClick={handleLogout}
-                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
                         >
                             Выйти
                         </button>
@@ -123,5 +125,6 @@ export function Header() {
                 )}
             </div>
         </div>
+        </AuthGuard>
     )
 }
