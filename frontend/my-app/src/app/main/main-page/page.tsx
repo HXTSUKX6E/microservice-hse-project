@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Header} from "@/app/components/Header";
+import { Header } from "@/app/components/Header";
 
 type Company = {
     company_id: number
@@ -40,6 +40,9 @@ export default function HomePage() {
     const [page, setPage] = useState(1)
     const [searchQuery, setSearchQuery] = useState('')
     const itemsPerPage = 15
+    const [isResponseModalOpen, setIsResponseModalOpen] = useState(false)
+    const [responseStatus, setResponseStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+    const [currentVacancyName, setCurrentVacancyName] = useState('')
 
     useEffect(() => {
         const token = localStorage.getItem('token')
@@ -73,11 +76,56 @@ export default function HomePage() {
 
     const getValue = (value: string | null) => value || 'Не указано'
 
-    const handleOutsideClick = () => {
-        // Обработчик клика вне меню профиля (теперь в компоненте Header)
+    const handleResponse = async (vacancyId: number, vacancyName: string) => {
+        try {
+            setResponseStatus('loading')
+            setCurrentVacancyName(vacancyName)
+            const token = localStorage.getItem('token')
+
+            if (!token) {
+                router.push('/auth/login')
+                return
+            }
+
+            console.log(`Отправка запроса на: http://localhost/api/comp-vac/vacancy/${vacancyId}/response`)
+
+            const response = await axios.post(
+                `http://localhost/api/comp-vac/vacancy/${vacancyId}/response`,
+                {},
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    validateStatus: (status) => {
+                        return (status >= 200 && status < 300) || status === 404
+                    }
+                }
+            )
+
+            console.log('Ответ сервера:', response)
+            console.log('ID_VAC:', vacancyId)
+
+            if (response.status === 404) {
+                setResponseStatus('error')
+                setIsResponseModalOpen(true)
+            } else if (response.status >= 200 && response.status < 300) {
+                setResponseStatus('success')
+                setIsResponseModalOpen(true)
+            }
+        } catch (error) {
+            console.error('Ошибка при отклике на вакансию:', error)
+            setResponseStatus('error')
+            setIsResponseModalOpen(true)
+
+            if (axios.isAxiosError(error)) {
+                if (error.response?.status === 401) {
+                    router.push('/auth/login')
+                }
+            }
+        }
     }
 
-    // Фильтрация вакансий по имени
     const filteredVacancies = vacancies.filter(vacancy =>
         vacancy.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         vacancy.company.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -92,7 +140,6 @@ export default function HomePage() {
             <Header />
 
             <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-                {/* Строка поиска */}
                 <div className="relative">
                     <input
                         type="text"
@@ -101,7 +148,6 @@ export default function HomePage() {
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="w-full px-4 py-2 pl-10 pr-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
                     />
-                    {/* Иконка поиска (лупа) */}
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         className="absolute left-3 top-1/2 transform -translate-y-1/2 h-6 w-6 text-gray-500"
@@ -148,7 +194,6 @@ export default function HomePage() {
                                     key={vacancy.vacancy_id}
                                     className="bg-white overflow-hidden shadow rounded-lg flex flex-col hover:shadow-lg transition-shadow"
                                 >
-                                    {/* Основной контент карточки с обработчиком клика */}
                                     <div
                                         className="px-4 py-5 sm:p-6 flex-grow cursor-pointer"
                                         onClick={() => router.push(`/vacancies/${vacancy.vacancy_id}`)}
@@ -156,7 +201,6 @@ export default function HomePage() {
                                         <h3 className="text-lg font-bold text-blue-700">{vacancy.name || 'Без названия'}</h3>
 
                                         <div className="mt-4 space-y-2">
-                                            {/* Название компании с отдельным обработчиком клика */}
                                             <div
                                                 className="text-black text-2xl font-semibold hover:text-blue-600 transition-colors cursor-pointer"
                                                 onClick={(e) => {
@@ -185,17 +229,27 @@ export default function HomePage() {
                                         </div>
                                     </div>
 
-                                    {/* Кнопка отклика с остановкой propagation */}
                                     <div className="mt-auto px-4 py-2">
                                         <button
                                             type="button"
-                                            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none"
+                                            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none cursor-pointer"
                                             onClick={(e) => {
                                                 e.stopPropagation();
-                                                // Логика обработки отклика
+                                                handleResponse(vacancy.vacancy_id, vacancy.name);
                                             }}
+                                            disabled={responseStatus === 'loading'}
                                         >
-                                            Откликнуться
+                                            {responseStatus === 'loading' ? (
+                                                <>
+                                                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                    </svg>
+                                                    Отправка...
+                                                </>
+                                            ) : (
+                                                'Откликнуться'
+                                            )}
                                         </button>
                                     </div>
                                 </div>
@@ -206,7 +260,7 @@ export default function HomePage() {
                             <button
                                 onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
                                 disabled={page === 1}
-                                className="px-6 py-2 rounded-full text-white bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 disabled:opacity-50"
+                                className="px-6 py-2 rounded-full text-white bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 disabled:opacity-50 cursor-pointer"
                             >
                                 Назад
                             </button>
@@ -218,12 +272,55 @@ export default function HomePage() {
                             <button
                                 onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
                                 disabled={page === totalPages}
-                                className="px-6 py-2 rounded-full text-white bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 disabled:opacity-50"
+                                className="px-6 py-2 rounded-full text-white bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 disabled:opacity-50 cursor-pointer"
                             >
                                 Вперёд
                             </button>
                         </div>
                     </>
+                )}
+
+                {isResponseModalOpen && (
+                    <div className="fixed inset-0 bg-blue-50 bg-opacity-30 flex items-center justify-center z-50">
+                        <div className="bg-white rounded-lg p-6 max-w-md w-full">
+                            {responseStatus === 'success' ? (
+                                <>
+                                    <div className="flex items-center justify-center mb-4">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    </div>
+                                    <h3 className="text-lg font-medium text-center mb-2 text-black">Отклик отправлен!</h3>
+                                    <p className="text-gray-600 text-center mb-4">
+                                        Вы успешно откликнулись на вакансию "{currentVacancyName}". Если работодатель заинтересуется вами, с вами обязательно свяжутся!
+                                    </p>
+                                </>
+                            ) : (
+                                <>
+                                    <div className="flex items-center justify-center text-red-500 mb-4">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </div>
+                                    <h3 className="text-lg font-medium text-center mb-2">Ошибка!</h3>
+                                    <p className="text-gray-600 text-center mb-4">
+                                        Не удалось отправить отклик на вакансию "{currentVacancyName}"
+                                    </p>
+                                </>
+                            )}
+                            <div className="flex justify-center">
+                                <button
+                                    onClick={() => {
+                                        setIsResponseModalOpen(false)
+                                        setResponseStatus('idle')
+                                    }}
+                                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none cursor-pointer"
+                                >
+                                    Закрыть
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 )}
             </main>
         </div>
