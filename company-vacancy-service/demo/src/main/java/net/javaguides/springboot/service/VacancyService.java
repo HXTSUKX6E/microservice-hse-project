@@ -48,7 +48,7 @@ public class VacancyService {
     @Async
     public CompletableFuture<List<Vacancy>> getAllVacancies() {
         log.info("service get all vacancies");
-        return CompletableFuture.completedFuture(vacancyRepository.findByIsHiddenFalse());
+        return CompletableFuture.completedFuture(vacancyRepository.findByIsHiddenTrue());
     }
 
     @Async
