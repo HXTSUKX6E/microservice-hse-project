@@ -19,7 +19,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
+
+import java.util.List;
 
 @EnableGlobalMethodSecurity(prePostEnabled = true)  // Включает поддержку @PreAuthorize
 
@@ -50,6 +54,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable()) // Отключение CSRF
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/register").permitAll() // Запросы без токена
@@ -67,6 +72,21 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration corsConfiguration = new CorsConfiguration();
+        corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000"));  // Указываем разрешенные источники
+        corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));  // Разрешенные методы
+        corsConfiguration.setAllowedHeaders(List.of("*"));  // Разрешаем все заголовки
+        corsConfiguration.setAllowCredentials(true);  // Разрешаем использование куки
+        corsConfiguration.setMaxAge(3600L);  // Время жизни предзапроса
+
+        org.springframework.web.cors.UrlBasedCorsConfigurationSource source = new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/api/**", corsConfiguration);  // Указываем, что конфигурация применяется к запросам по пути /api/**
+
+        return source;
     }
 
     @Bean

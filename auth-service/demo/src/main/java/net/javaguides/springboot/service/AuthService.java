@@ -151,8 +151,8 @@ public class AuthService {
     }
 
     @Async
-    public CompletableFuture<ResponseEntity<Map<String, Object>>> updateOwnProfile(HttpServletRequest request, Long id, UserGetOneDTO userGetOneDTO, String currentUsername) {
-        User existingUser = userRepository.findById(id)
+    public CompletableFuture<ResponseEntity<Map<String, Object>>> updateOwnProfile(HttpServletRequest request, UserGetOneDTO userGetOneDTO, String currentUsername) {
+        User existingUser = userRepository.findByLogin(currentUsername)
                 .orElseThrow(() -> new ResourceNotFoundException("Пользователь не найден!"));
         //логика с ролью
         if (userGetOneDTO.getRole_id() != 1) {
@@ -160,7 +160,7 @@ public class AuthService {
                     .orElseThrow(() -> new ResourceNotFoundException("Не удалось установить указанную роль!"));
             existingUser.setRole(role);
         }
-        else {throw new ResourceNotFoundException("Недостаточно прав!"); }
+//        else {throw new ResourceNotFoundException("Недостаточно прав!"); }
         if (!existingUser.getLogin().equals(currentUsername)) {
             throw new ResourceNotFoundException("Нет доступа!");
         }
@@ -179,8 +179,9 @@ public class AuthService {
 
     // !
     @Async
-    public CompletableFuture<ResponseEntity<Map<String, Object>>> updateLogin(HttpServletRequest request, Long id, Map<String, String> loginRequest) {
-        User existingUser = userRepository.findById(id)
+    public CompletableFuture<ResponseEntity<Map<String, Object>>> updateLogin(HttpServletRequest request, Map<String, String> loginRequest) {
+        String login_old = loginRequest.get("login_old");
+        User existingUser = userRepository.findByLogin(login_old)
                 .orElseThrow(() -> new ResourceNotFoundException("Пользователь не найден!"));
         String login = loginRequest.get("login");
         Map<String, Object> response = new HashMap<>();
@@ -264,20 +265,20 @@ public class AuthService {
         }
     }
 
-//    @Async
-//    public CompletableFuture<ResponseEntity<Map<String, Object>>> getInfoAboutUser(Long id, String currentUsername) {
-//        User user = userRepository.findById(id)
-//                .orElseThrow(() -> new RuntimeException("Пользователь не найден!"));
-//        Map<String, Object> response = new HashMap<>();
+    @Async
+    public CompletableFuture<ResponseEntity<Map<String, Object>>> getInfoAboutUser(String currentUsername) {
+        User user = userRepository.findByLogin(currentUsername)
+                .orElseThrow(() -> new RuntimeException("Пользователь не найден!"));
+        Map<String, Object> response = new HashMap<>();
 //        if (!user.getLogin().equals(currentUsername)) {
 //            response.put("message", "Нет доступа!");
 //            return CompletableFuture.completedFuture(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response));
 //        }
-//        response.put("user_id", user.getUser_id());
-//        response.put("login", user.getLogin());
+        response.put("role", user.getRole().getTitle());
+        response.put("login", user.getLogin());
 //        kafkaProducerService.sendUserChangeEvent(existingUser.getPendingLogin(), newToken);
-//        return CompletableFuture.completedFuture(ResponseEntity.ok(response));
-//    }
+        return CompletableFuture.completedFuture(ResponseEntity.ok(response));
+    }
 
     // METHODS
     private String extractToken(HttpServletRequest request) {

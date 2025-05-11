@@ -49,15 +49,15 @@ public class AuthController {
     }
 
     // change in your profile (not @Valid else drop)
-    @PutMapping("/profile/{id}")
-    public ResponseEntity<Map<String, Object>> updateOwnProfile(HttpServletRequest request, @PathVariable Long id, @RequestBody @Valid UserGetOneDTO userGetOneDTO) throws ExecutionException, InterruptedException {
+    @PutMapping("/profile")
+    public ResponseEntity<Map<String, Object>> updateOwnProfile(HttpServletRequest request, @RequestBody @Valid UserGetOneDTO userGetOneDTO) throws ExecutionException, InterruptedException {
         String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
-        return authService.updateOwnProfile(request, id, userGetOneDTO, currentUsername).get();
+        return authService.updateOwnProfile(request, userGetOneDTO, currentUsername).get();
     }
 
-    @PutMapping("/profile/change-login/{id}")
-    public ResponseEntity<Map<String, Object>> updateLogin(HttpServletRequest request, @PathVariable Long id, @RequestBody @Valid Map<String, String> loginRequest) throws ExecutionException, InterruptedException {
-        return authService.updateLogin(request, id, loginRequest).get();
+    @PutMapping("/profile/change-login")
+    public ResponseEntity<Map<String, Object>> updateLogin(HttpServletRequest request, @RequestBody @Valid Map<String, String> loginRequest) throws ExecutionException, InterruptedException {
+        return authService.updateLogin(request, loginRequest).get();
     }
 
     // confirm change email
@@ -82,9 +82,9 @@ public class AuthController {
         return authService.resetPassword(token, resetPasswordDTO).get();
     }
 
-//    @GetMapping("/profile/{id}")
-//    public ResponseEntity<Map<String, Object>> getProfile(@PathVariable Long id) throws ExecutionException, InterruptedException {
-//        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
-//        return authService.getInfoAboutUser(id, currentUsername).get();
-//    }
+    @GetMapping("/profile")
+    public ResponseEntity<Map<String, Object>> getProfile() throws ExecutionException, InterruptedException {
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        return authService.getInfoAboutUser(currentUsername).get();
+    }
 }

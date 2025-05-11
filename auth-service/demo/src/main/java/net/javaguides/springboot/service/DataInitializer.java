@@ -37,7 +37,7 @@ public class DataInitializer {
             roleRepository.save(role3);
         }
         if (userRepository.count() == 0) {
-            String pass = bCryptPasswordEncoder.encode("123");
+            String pass = bCryptPasswordEncoder.encode("Dimka2003");
 
             User user1 = new User("dima20030617@mail.ru", pass, role1);
             user1.setEnabled(true);
