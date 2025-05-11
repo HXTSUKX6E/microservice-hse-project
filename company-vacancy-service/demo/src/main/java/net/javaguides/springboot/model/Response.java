@@ -8,6 +8,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.Date;
 
@@ -32,7 +34,8 @@ public class Response {
 
     @JsonProperty(access = Access.READ_ONLY)
     @ManyToOne
-    @JoinColumn(name = "vacancy_id", nullable = false)
+    @JoinColumn(name = "vacancy_id", nullable = true)
+    @OnDelete(action = OnDeleteAction.SET_NULL)
     private Vacancy vacancy;
 
     @JsonIgnore // Игнорируется при десериализации JSON

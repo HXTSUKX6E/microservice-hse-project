@@ -52,6 +52,17 @@ public class CompanyService {
         Company company = companyRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Компания не найдена!"));
         companyDetails.setCompany_id(company.getCompany_id());
+        companyDetails.setVacancies(company.getVacancies());
+
+        return CompletableFuture.completedFuture(companyRepository.save(companyDetails));
+    }
+
+    @Async
+    public CompletableFuture<Company> acceptCompany(Long id) {
+        Company company = companyRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Компания не найдена!"));
+        company.setIs_accepted(true);
+        company.setVacancies(company.getVacancies());
         return CompletableFuture.completedFuture(companyRepository.save(company));
     }
 

@@ -50,7 +50,9 @@ public class Company {
 
     private String userName;
 
-    @OneToMany(mappedBy = "company", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "company",
+            cascade = { CascadeType.PERSIST, CascadeType.MERGE }, // Убрали REMOVE
+            orphanRemoval = true)
     //@JsonIgnoreProperties({"company"})
     @JsonIgnore
     private List<Vacancy> vacancies;

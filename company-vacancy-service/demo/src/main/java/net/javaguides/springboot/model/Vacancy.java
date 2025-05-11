@@ -54,7 +54,7 @@ public class Vacancy {
     private Boolean is_educated = false;
 
     @JsonIgnore
-    private Boolean isHidden = false; // open
+    private Boolean isHidden = true; // open
 
     public Vacancy() {}
 

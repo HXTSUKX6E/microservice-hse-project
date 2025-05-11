@@ -37,9 +37,13 @@ public class VacancyService {
         Company company = companyRepository.findById(vacancyDto.getCompany_id())
                 .orElseThrow(() -> new ResourceNotFoundException("Компания не найдена!"));
 
-        // if (!company.getIs_accepted())
         Vacancy vacancy = new Vacancy(vacancyDto);
+        // if (!company.getIs_accepted())
+        if (!company.getIs_accepted()) {
+            throw new ResourceNotFoundException("Невозможно создать вакансию: компания не подтверждена администратором");
+        }
         vacancy.setCompany(company);
+
 
         log.info("service create vacancy");
         return CompletableFuture.completedFuture(vacancyRepository.save(vacancy));
@@ -70,7 +74,8 @@ public class VacancyService {
         Vacancy vacancy = vacancyRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Вакансия не найдена!"));
         log.info("service update vacancy");
-        vacancy.setVacancy_id(vacancy.getVacancy_id());
+        vacancyDetails.setVacancy_id(vacancy.getVacancy_id());
+        vacancyDetails.setCompany(vacancy.getCompany());
         return CompletableFuture.completedFuture(vacancyRepository.save(vacancyDetails));
     }
 

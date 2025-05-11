@@ -66,6 +66,13 @@ public class CompanyController {
         return companyService.updateCompany(id, companyDetails).get();
     }
 
+    // вереф
+    @PreAuthorize("hasRole('ROLE_1')")
+    @PutMapping("/company-accept/{id}")
+    public Company acceptCompany(@PathVariable Long id) throws ExecutionException, InterruptedException {
+        return companyService.acceptCompany(id).get();
+    }
+
     // delete company
     @PreAuthorize("hasRole('ROLE_1')")
     @DeleteMapping("/company/{id}")
