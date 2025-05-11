@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import AuthGuard from "@/app/components/AuthGuard";
+import axios from "axios";
 
 export function Header() {
     const router = useRouter()
@@ -24,6 +25,7 @@ export function Header() {
         return () => clearInterval(interval)
     }, [slides.length])
 
+
     const handleLogout = () => {
         localStorage.removeItem('token')
         router.push('/auth/login')
@@ -35,6 +37,7 @@ export function Header() {
 
     return (
         <AuthGuard>
+
         <div className="relative h-64 bg-gray-200 overflow-hidden shadow-inner" onClick={handleOutsideClick}>
             {slides.map((slide, index) => (
                 <div
@@ -109,11 +112,11 @@ export function Header() {
                         <Link href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             Настройки профиля
                         </Link>
+                        <Link href="/resume" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            Резюме
+                        </Link>
                         <Link href="/reviews" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                             Отзывы
-                        </Link>
-                        <Link href="/resume" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            Моё резюме
                         </Link>
                         <button
                             onClick={handleLogout}

@@ -4,6 +4,9 @@ import axios from 'axios'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { Header } from "@/app/components/Header";
+import AuthGuard from '@/app/components/AuthGuard'
+import AdminSidebar from "@/app/components/AdminSidebar";
+import useRole from "@/app/hooks/useRole";
 
 type Company = {
     company_id: number
@@ -100,6 +103,8 @@ export default function VacancyPage() {
         void fetchData();
     }, [id, router]);
 
+    const role = useRole()
+
     const handleResponse = async () => {
         try {
             setResponseStatus('loading')
@@ -155,9 +160,12 @@ export default function VacancyPage() {
     }
 
     return (
+        <AuthGuard>
         <div className="min-h-screen bg-gray-50">
             <Header />
-
+            <div className="flex flex-1">
+                {/* Боковое меню для админа */}
+                {role === "Администратор" && <AdminSidebar />}
             <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
                 <Link
                     href="/main/main-page"
@@ -240,7 +248,7 @@ export default function VacancyPage() {
                                                 </svg>
                                                 <div className="text-black">
                                                     <span className="font-medium">Адрес: </span>
-                                                    ул. Сибирская, 45, Пермь
+                                                    {vacancy.address}
                                                 </div>
                                             </div>
                                             <div className="flex items-start">
@@ -249,7 +257,7 @@ export default function VacancyPage() {
                                                 </svg>
                                                 <div className="text-black">
                                                     <span className="font-medium">График работы: </span>
-                                                    Сб-Вс, с 12:00 до 18:00
+                                                    {vacancy.schedule}
                                                 </div>
                                             </div>
                                             <div className="flex items-start">
@@ -258,7 +266,7 @@ export default function VacancyPage() {
                                                 </svg>
                                                 <div className="text-black">
                                                     <span className="font-medium">Формат работы: </span>
-                                                    Офис
+                                                    {vacancy.format}
                                                 </div>
                                             </div>
                                             <div className="flex items-start">
@@ -365,5 +373,7 @@ export default function VacancyPage() {
                 )}
             </main>
         </div>
+        </div>
+        </AuthGuard>
     )
 }
