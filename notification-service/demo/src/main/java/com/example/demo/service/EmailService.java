@@ -90,11 +90,10 @@ public class EmailService {
     }
 
 
-
     @Async
     public void sendConfirmationChangeEmail(String to, String token) {
         String subject = "Подтверждение изменения ";
-        String confirmationUrl = "http://localhost/api/auth/confirm-email-change?token=" + token;
+        String confirmationUrl = "http://localhost:3000/profile?token=" + token;
         String message = "Перейдите по ссылке для подтверждения смены email: " + confirmationUrl;
 
         SimpleMailMessage email = new SimpleMailMessage();
