@@ -32,7 +32,8 @@ public class User {
     @Column(nullable = false)
     private Boolean enabled = false; // from email
 
-    // private Long company_id;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, optional = true)
+    private Resume resume;
 
     public User() {
     }
