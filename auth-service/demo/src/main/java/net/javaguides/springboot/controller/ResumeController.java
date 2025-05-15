@@ -43,12 +43,14 @@ public class ResumeController {
     }
 
     @PutMapping("/resume/{id}")
-    public Resume putResume(@Valid @RequestBody CreateResumeRequest createResumeRequest, @PathVariable Long id, @RequestParam String token) throws ExecutionException, InterruptedException {
+    public Resume putResume(@Valid @RequestBody CreateResumeRequest createResumeRequest, @PathVariable Long id, @RequestHeader("Authorization") String authorizationHeader) throws ExecutionException, InterruptedException {
+        String token = authorizationHeader.replace("Bearer ", "").trim();
         return resumeService.putResume(createResumeRequest, token, id).get();
     }
 
     @DeleteMapping("/resume/{id}")
-    public ReturnStatusDeleteDto deleteResume(@PathVariable Long id, @RequestParam String token) throws ExecutionException, InterruptedException {
+    public ReturnStatusDeleteDto deleteResume(@PathVariable Long id, @RequestHeader("Authorization") String authorizationHeader) throws ExecutionException, InterruptedException {
+        String token = authorizationHeader.replace("Bearer ", "").trim();
         return resumeService.deleteResume(id, token).get();
     }
 

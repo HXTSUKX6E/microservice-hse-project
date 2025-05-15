@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Console;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
@@ -47,26 +48,17 @@ public class ResumeService {
         User user = userRepository.findByLogin(username)
                 .orElseThrow(() -> new ResourceNotFoundException("Пользователь не найден!"));
 
-        // Проверка через связь, а не отдельным запросом
+        // Проверка через связь
         if (user.getResume() != null) {
             throw new IllegalStateException("Резюме уже существует для этого пользователя");
         }
 
         Resume resume = new Resume();
-        resume.setEducation(request.getEducation());
-        resume.setPlaceEducation(request.getPlaceEducation());
-        resume.setGender(request.getGender());
-        resume.setFullName(request.getFullName());
 
+        setResume(request, resume);
         // Устанавливаем двунаправленную связь
         resume.setUser(user);
         user.setResume(resume);
-
-        // @MapsId автоматически установит resume_id = user_id
-        // resume.setResume_id(user.getUser_id()); // ← Эту строку нужно УБРАТЬ!
-
-        if (request.getSkills() != null) resume.setSkills(request.getSkills());
-        if (request.getBirthday() != null) resume.setBirthday(request.getBirthday());
 
         // Каскадирование сохранит оба объекта
         return CompletableFuture.completedFuture(resumeRepository.save(resume));
@@ -85,20 +77,28 @@ public class ResumeService {
         String username = jwtUtil.extractUsername(token);
         User user = userRepository.findByLogin(username)
                 .orElseThrow(() -> new ResourceNotFoundException("Пользователь не найден!"));
+        if (!Objects.equals(user.getUser_id(), id)) {
+            throw new IllegalStateException("Нет доступа!");
+        }
 
+        Resume resume = user.getResume();
+        setResume(request, resume);
+//        resume.setUser(user);
+//        user.setResume(resume);
 
-        Resume resume = new Resume();
-//        resume.setResume_id(id);
+        return CompletableFuture.completedFuture(resumeRepository.save(resume));
+    }
+
+    private void setResume(CreateResumeRequest request, Resume resume) {
         resume.setEducation(request.getEducation());
         resume.setPlaceEducation(request.getPlaceEducation());
         resume.setGender(request.getGender());
         resume.setFullName(request.getFullName());
-        resume.setUser(user);
-
-        if (request.getSkills() != null) resume.setSkills(request.getSkills());
-        if (request.getBirthday() != null) resume.setBirthday(request.getBirthday());
-
-        return CompletableFuture.completedFuture(resumeRepository.save(resume));
+        resume.setDescription(request.getDescription());
+        resume.setSkills(request.getSkills());
+        resume.setBirthday(request.getBirthday());
+        resume.setContact(request.getContact());
+        resume.setPhone(request.getPhone());
     }
 
 
@@ -106,12 +106,12 @@ public class ResumeService {
     public CompletableFuture<ReturnStatusDeleteDto> deleteResume(Long id, String token) {
 
         String username = jwtUtil.extractUsername(token);
-        Resume resume = resumeRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Резюме не существует"));
-        User user = userRepository.findById(resume.getUser().getUser_id())
-                .orElseThrow(() -> new ResourceNotFoundException("Пользователь не найден!"));
-
-        resumeRepository.delete(resume);
+        User user = userRepository.findByLogin(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Error!"));
+        if (!Objects.equals(user.getUser_id(), id)) {
+            throw new IllegalStateException("Нет доступа!");
+        }
+        resumeRepository.delete(user.getResume());
         ReturnStatusDeleteDto returnStatusDeleteDto = new ReturnStatusDeleteDto();
         returnStatusDeleteDto.setStatus("Резюме успешно удалено");
 
