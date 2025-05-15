@@ -7,6 +7,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import net.javaguides.springboot.dto.VacancyDto;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.util.Date;
 
@@ -55,6 +58,12 @@ public class Vacancy {
 
     @JsonIgnore
     private Boolean isHidden = true; // open
+
+    // текущая дата
+    @UpdateTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(nullable = false, updatable = false)
+    private Date date;
 
     public Vacancy() {}
 

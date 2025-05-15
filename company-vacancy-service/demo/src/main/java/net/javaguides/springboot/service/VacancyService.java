@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,6 +77,7 @@ public class VacancyService {
         log.info("service update vacancy");
         vacancyDetails.setVacancy_id(vacancy.getVacancy_id());
         vacancyDetails.setCompany(vacancy.getCompany());
+        vacancyDetails.setDate(new Date()); //тригер обновления
         return CompletableFuture.completedFuture(vacancyRepository.save(vacancyDetails));
     }
 
