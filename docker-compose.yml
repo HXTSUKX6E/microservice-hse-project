@@ -122,6 +122,8 @@ services:
       SPRING_DATASOURCE_PASSWORD: 12345678
       SPRING_REDIS_HOST: redis
       SPRING_REDIS_PORT: 6379
+    env_file:
+      - ./auth-service/demo/.env
   notification-service:
     build:
       context: ./notification-service
