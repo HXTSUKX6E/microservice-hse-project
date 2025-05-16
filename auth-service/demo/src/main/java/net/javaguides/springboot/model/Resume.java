@@ -16,7 +16,7 @@ public class Resume {
 
     @Id
 //    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long resume_id;  // ID резюме (будет одинаково с user_id)
+    private Long resumeId;  // ID резюме (будет одинаково с user_id)
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "resume_id", referencedColumnName = "user_id", nullable = false)
