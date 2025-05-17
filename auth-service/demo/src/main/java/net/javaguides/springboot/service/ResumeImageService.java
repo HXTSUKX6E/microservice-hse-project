@@ -1,18 +1,21 @@
 package net.javaguides.springboot.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import net.javaguides.springboot.dto.ResumeImageDto;
+import net.javaguides.springboot.dto.ReturnStatusDeleteDto;
 import net.javaguides.springboot.exception.ResourceNotFoundException;
 import net.javaguides.springboot.model.Resume;
 import net.javaguides.springboot.model.ResumeImage;
+import net.javaguides.springboot.model.User;
 import net.javaguides.springboot.repository.ResumeImageRepository;
 import net.javaguides.springboot.repository.ResumeRepository;
+import net.javaguides.springboot.repository.UserRepository;
+import net.javaguides.springboot.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 
@@ -23,15 +26,20 @@ public class ResumeImageService {
     private final ResumeRepository resumeRepository; // существующий
     private final YandexStorageService yandexStorageService;
     private final PresignedUrlService presignedUrlService;
+    private final UserRepository userRepository;
+    private final JwtUtil jwtUtil;
     @Autowired
 
     public ResumeImageService(ResumeImageRepository resumeImageRepository,
                               ResumeRepository resumeRepository, YandexStorageService yandexStorageService,
-                              PresignedUrlService presignedUrlService) {
+                              PresignedUrlService presignedUrlService,
+                              UserRepository userRepository, JwtUtil jwtUtil) {
         this.resumeImageRepository = resumeImageRepository;
         this.resumeRepository = resumeRepository;
         this.yandexStorageService = yandexStorageService;
         this.presignedUrlService = presignedUrlService;
+        this.userRepository = userRepository;
+        this.jwtUtil = jwtUtil;
     }
 
     public ResumeImage uploadResumeImage(Long resumeId, MultipartFile file) throws IOException {
@@ -67,7 +75,7 @@ public class ResumeImageService {
     }
 
 
-    public List<String> getAllImagePresignedUrlsByResumeId(Long resumeId) {
+    public List<ResumeImageDto> getAllImagePresignedUrlsByResumeId(Long resumeId) {
         if (!resumeRepository.existsById(resumeId)) {
             throw new ResourceNotFoundException("Резюме не найдено");
         }
@@ -77,19 +85,30 @@ public class ResumeImageService {
         return images.stream()
                 .map(image -> {
                     try {
-                        // Допустим, у тебя URL вида https://storage.yandexcloud.net/bucket/key
-                        // Нужно вытащить key (путь в бакете)
                         String key = extractKeyFromUrl(image.getUrl());
+                        String signedUrl = presignedUrlService.generatePresignedUrl(key, 3600);
 
-                        // Генерируем временную ссылку на файл, например, на 1 час (3600 секунд)
-                        return presignedUrlService.generatePresignedUrl(key, 3600);
-
+                        return new ResumeImageDto(image.getResumeImageId(), signedUrl);
                     } catch (Exception e) {
-                        // Можно логировать ошибку
                         return null;
                     }
                 })
                 .filter(Objects::nonNull)
                 .toList();
+    }
+
+    public ResponseEntity<ReturnStatusDeleteDto> delResumeImageContent(Long resumeImageId, String token) throws IOException {
+        String username = jwtUtil.extractUsername(token);
+        User user = userRepository.findByLogin(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Error!"));
+        ResumeImage resumeImage = resumeImageRepository.findById(resumeImageId)
+                .orElseThrow(() -> new ResourceNotFoundException("Из-ние не найдено"));
+        if (!user.getUser_id().equals(resumeImage.getResume().getUser().getUser_id())) {
+            throw new RuntimeException("Нет прав!");
+        }
+        ReturnStatusDeleteDto returnStatusDeleteDto = new ReturnStatusDeleteDto();
+        returnStatusDeleteDto.setStatus("Удалено!");
+        resumeImageRepository.delete(resumeImage);
+        return ResponseEntity.ok(returnStatusDeleteDto);
     }
 }

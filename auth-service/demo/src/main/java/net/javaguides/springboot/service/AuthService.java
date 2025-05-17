@@ -274,6 +274,7 @@ public class AuthService {
 //            response.put("message", "Нет доступа!");
 //            return CompletableFuture.completedFuture(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response));
 //        }
+        response.put("userId", user.getUser_id());
         response.put("role", user.getRole().getTitle());
         response.put("login", user.getLogin());
 //        kafkaProducerService.sendUserChangeEvent(existingUser.getPendingLogin(), newToken);

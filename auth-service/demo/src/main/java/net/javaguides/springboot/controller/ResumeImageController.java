@@ -2,10 +2,12 @@ package net.javaguides.springboot.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import net.javaguides.springboot.dto.ResumeImageDto;
+import net.javaguides.springboot.dto.ReturnStatusDeleteDto;
 import net.javaguides.springboot.model.ResumeImage;
 import net.javaguides.springboot.service.ResumeImageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -54,8 +56,14 @@ public class ResumeImageController {
     }
 
     @GetMapping("/{resumeId}/images/content")
-    public ResponseEntity<List<String>> getAllResumeImageContents(@PathVariable Long resumeId) {
-        List<String> imageDataList = resumeImageService.getAllImagePresignedUrlsByResumeId(resumeId);
-        return ResponseEntity.ok(imageDataList);
+    public List<ResumeImageDto> getAllResumeImageContents(@PathVariable Long resumeId) {
+        return resumeImageService.getAllImagePresignedUrlsByResumeId(resumeId);
+    }
+
+    @Transactional
+    @DeleteMapping("/resume-image/{resumeImageId}/content")
+    public ResponseEntity<ReturnStatusDeleteDto> delResumeImageContent(@PathVariable Long resumeImageId, @RequestHeader("Authorization") String authorizationHeader) throws IOException {
+        String token = authorizationHeader.replace("Bearer ", "").trim();
+        return resumeImageService.delResumeImageContent(resumeImageId, token);
     }
 }
