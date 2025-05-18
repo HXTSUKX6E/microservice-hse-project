@@ -3,6 +3,9 @@ import { Header } from "@/app/components/Header"
 import AdminSidebar from "@/app/components/AdminSidebar"
 import AuthGuard from "@/app/components/AuthGuard"
 import useRole from "@/app/hooks/useRole"
+import TeenagerSidebar from "@/app/components/TeenagerSidebar";
+import React from "react";
+import EmployeeSidebar from "@/app/components/EmpoyeeSidebar"
 
 export default function ReviewsPage() {
     const role = useRole()
@@ -13,6 +16,8 @@ export default function ReviewsPage() {
                 <Header />
                 <div className="flex flex-1">
                     {role === "Администратор" && <AdminSidebar />}
+                    {role === 'Пользователь' && <TeenagerSidebar />}
+                    {role === "Сотрудник" && <EmployeeSidebar />}
 
                     <main className="flex-1 flex items-center justify-center">
                         <div className="text-center p-6 max-w-md bg-white shadow-md rounded-2xl">

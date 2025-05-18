@@ -6,6 +6,8 @@ import Link from 'next/link'
 import AuthGuard from '@/app/components/AuthGuard'
 import { Header } from "@/app/components/Header"
 import AdminSidebar from "@/app/components/AdminSidebar"
+import TeenagerSidebar from "@/app/components/TeenagerSidebar"
+import EmployeeSidebar from "@/app/components/EmpoyeeSidebar"
 import useRole from "@/app/hooks/useRole"
 
 type Company = {
@@ -177,7 +179,8 @@ export default function HomePage() {
                 <Header />
                 <div className="flex flex-1">
                     {role === "Администратор" && <AdminSidebar />}
-
+                    {role === "Пользователь" && <TeenagerSidebar/>}
+                    {role === "Сотрудник" && <EmployeeSidebar />}
                     <main className="flex-1">
                         <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
                             {/* Заголовок и поиск */}
@@ -358,7 +361,7 @@ export default function HomePage() {
                                                             handleResponse(vacancy.vacancy_id, vacancy.name);
                                                         }}
                                                         disabled={responseStatus === 'loading'}
-                                                        className="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium rounded-lg shadow-md transition-all flex items-center justify-center"
+                                                        className="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium rounded-lg shadow-md transition-all flex items-center justify-center cursor-pointer"
                                                     >
                                                         {responseStatus === 'loading' ? (
                                                             <>

@@ -10,6 +10,8 @@ import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import AdminSidebar from "@/app/components/AdminSidebar";
 import useRole from '@/app/hooks/useRole'
+import TeenagerSidebar from "@/app/components/TeenagerSidebar";
+import EmployeeSidebar from "@/app/components/EmpoyeeSidebar"
 
 type ResumeData = {
     resumeId: number
@@ -35,6 +37,7 @@ export default function ResumePage() {
     const role = useRole()
     const router = useRouter()
     const [resume, setResume] = useState<ResumeData | null>(null)
+    const isCreating = !resume;
     const [loading, setLoading] = useState(true)
     const [isEditing, setIsEditing] = useState(false)
     const [formData, setFormData] = useState<Partial<ResumeData>>({})
@@ -44,7 +47,53 @@ export default function ResumePage() {
     const [images, setImages] = useState<ResumeImage[]>([])
     const [modalImage, setModalImage] = useState<string | null>(null)
     const [userId, setUserId] = useState<number | null>(null)
+    const [loadingImages, setLoadingImages] = useState(true);
 
+    const validateForm = (data: Partial<ResumeData>): boolean => {
+        if (!data.fullName || data.fullName.trim().length < 5) {
+            toast.error('Введите корректное ФИО (не менее 5 символов)')
+            return false
+        }
+
+        if (!data.birthday) {
+            toast.error('Укажите дату рождения')
+            return false
+        } else {
+            const birthdayDate = new Date(data.birthday)
+            if (birthdayDate > new Date()) {
+                toast.error('Дата рождения не может быть в будущем')
+                return false
+            }
+        }
+
+        if (!data.gender || (data.gender !== 'Male' && data.gender !== 'Female')) {
+            toast.error('Выберите пол')
+            return false
+        }
+
+
+        if (data.skills) {
+            const skillsArray = data.skills.split(',').map(s => s.trim()).filter(Boolean)
+            if (skillsArray.length > 10) {
+                toast.error('Максимум 10 навыков')
+                return false
+            }
+        }
+
+        if (!data.education) {
+            toast.error('Заполните поле с образованием!')
+            return false
+        }
+
+        if (!data.placeEducation) {
+            toast.error('Заполните поле с местом обучения!')
+            return false
+        }
+
+        // Можно добавить и другие проверки, если нужно
+
+        return true
+    }
     // Format date to dd.mm.yy
     const formatDate = (dateString: string) => {
         if (!dateString) return 'Не указано'
@@ -68,35 +117,43 @@ export default function ResumePage() {
                 const token = localStorage.getItem('token')
                 if (!token) throw new Error('Token not found')
 
-                // Получаем userId из профиля
                 const currentUserId = await getUserId(token)
                 setUserId(currentUserId)
 
                 if (!currentUserId) throw new Error('User ID not found in profile response')
 
-                // Получаем резюме
-                const response = await axios.get(`http://localhost/api/user/resume/${currentUserId}`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                })
-                setResume(response.data)
-                setFormData(response.data)
+                let resumeData = null
 
-                // Получаем изображения
+                try {
+                    const response = await axios.get(`http://localhost/api/user/resume/${currentUserId}`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    })
+                    resumeData = response.data
+                    setResume(resumeData)
+                    setFormData(resumeData)
+                } catch (resumeErr) {
+                    if (axios.isAxiosError(resumeErr) && resumeErr.response?.status === 404) {
+                        setResume(null) // резюме не найдено
+                        return // не продолжаем, если нет резюме
+                    } else {
+                        throw resumeErr
+                    }
+                }
+                setLoadingImages(true);
+                // Загружаем изображения только если резюме существует
                 const imagesResponse = await axios.get(`http://localhost/api/user/${currentUserId}/images/content`, {
                     headers: { Authorization: `Bearer ${token}` }
                 })
-                console.log(imagesResponse)
+
                 const formattedImages = imagesResponse.data.map((img: { id: number, imageUrl: string }) => ({
                     id: img.id,
                     url: img.imageUrl
                 }))
                 setImages(formattedImages)
             } catch (error) {
-                console.error('Error fetching resume:', error)
-                if (axios.isAxiosError(error) && error.response?.status === 404) {
-                    setResume(null) // Резюме не существует
-                }
+                console.error('Error fetching resume or user data:', error)
             } finally {
+                setLoadingImages(false);
                 setLoading(false)
             }
         }
@@ -120,41 +177,68 @@ export default function ResumePage() {
     }
 
     const handleSaveResume = async () => {
+        if (!validateForm(formData)) {
+            return
+        }
         try {
             const token = localStorage.getItem('token')
             if (!token) throw new Error('Token not found')
 
-            if (!userId) {
-                const currentUserId = await getUserId(token)
+            // Получаем userId, если он ещё не получен
+            let currentUserId = userId
+            if (!currentUserId) {
+                currentUserId = await getUserId(token)
                 setUserId(currentUserId)
-                if (!currentUserId) throw new Error('User ID not found')
             }
 
+            if (!currentUserId) throw new Error('User ID not found')
+
             if (!resume) {
-                // Create new resume
-                const response = await axios.post('http://localhost/api/user/resume', {
-                    ...formData,
-                    resumeId: userId // Используем userId из состояния
-                }, {
-                    headers: { Authorization: `Bearer ${token}` }
-                })
+                // Создание нового резюме
+                const response = await axios.post(
+                    'http://localhost/api/user/resume',
+                    {
+                        ...formData,
+                        resumeId: currentUserId
+                    },
+                    {
+                        headers: { Authorization: `Bearer ${token}` }
+                    }
+                )
                 setResume(response.data)
                 toast.success('Резюме успешно создано!')
             } else {
-                // Update existing resume
-                const response = await axios.put(`http://localhost/api/user/resume/${userId}`, formData, {
-                    headers: { Authorization: `Bearer ${token}` }
-                })
+                // Обновление существующего резюме
+                const response = await axios.put(
+                    `http://localhost/api/user/resume/${currentUserId}`,
+                    formData,
+                    {
+                        headers: { Authorization: `Bearer ${token}` }
+                    }
+                )
                 setResume(response.data)
                 toast.success('Резюме успешно обновлено!')
             }
 
             setIsEditing(false)
+
         } catch (error) {
             console.error('Error saving resume:', error)
-            toast.error('Ошибка при сохранении резюме')
+
+            if (axios.isAxiosError(error)) {
+                if (error.response?.status === 400) {
+                    const message = error.response.data?.message || 'Некорректные данные. Проверьте форму.'
+                    toast.error(`Ошибка 400: ${message}`)
+                } else {
+                    const message = error.response?.data?.message || 'Ошибка при сохранении резюме'
+                    toast.error(message)
+                }
+            } else {
+                toast.error('Непредвиденная ошибка при сохранении резюме')
+            }
         }
     }
+
 
     const handleDeleteResume = async () => {
         if (confirm('Вы уверены, что хотите удалить резюме?')) {
@@ -184,8 +268,8 @@ export default function ResumePage() {
 
     const handleImageUpload = async () => {
         if (!selectedImage || !resume) return
-        if (images.length >= 10) {
-            toast.warning('Максимум 10 изображений можно загрузить в портфолио')
+        if (images.length >= 6) {
+            toast.warning('Максимум 6 изображений можно загрузить в портфолио')
             return
         }
         try {
@@ -260,7 +344,7 @@ export default function ResumePage() {
                     url: img.imageUrl
                 }))
                 setImages(formattedImages)
-                setImages(formattedImages)
+                // setImages(formattedImages)
                 toast.success('Фото удалено')
             } catch (error) {
                 console.error('Error deleting image:', error)
@@ -275,6 +359,8 @@ export default function ResumePage() {
                 <Header />
                 <div className="flex flex-1">
                     {role === 'Администратор' && <AdminSidebar />}
+                    {role === 'Пользователь' && <TeenagerSidebar />}
+                    {role === "Сотрудник" && <EmployeeSidebar />}
                 <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                     <div className="flex justify-between items-center mb-8">
 
@@ -296,13 +382,13 @@ export default function ResumePage() {
                                 <>
                                     <button
                                         onClick={handleSaveResume}
-                                        className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                                        className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors cursor-pointer"
                                     >
                                         Сохранить
                                     </button>
                                     <button
                                         onClick={() => setIsEditing(false)}
-                                        className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                                        className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors cursor-pointer"
                                     >
                                         Отмена
                                     </button>
@@ -330,7 +416,7 @@ export default function ResumePage() {
                             <div className="mt-6">
                                 <button
                                     onClick={() => setIsEditing(true)}
-                                    className="px-6 py-3 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition-colors font-medium"
+                                    className="px-6 py-3 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition-colors font-medium cursor-pointer"
                                 >
                                     Создать резюме
                                 </button>
@@ -345,7 +431,7 @@ export default function ResumePage() {
                                         {isEditing ? (
                                             <>
                                                 <div className="mb-4">
-                                                    <label className="block text-sm font-medium text-gray-700 mb-1">ФИО</label>
+                                                    <label className="block text-sm font-medium text-gray-700 mb-1">ФИО*</label>
                                                     <input
                                                         type="text"
                                                         name="fullName"
@@ -356,7 +442,7 @@ export default function ResumePage() {
                                                 </div>
 
                                                 <div className="mb-4">
-                                                    <label className="block text-sm font-medium text-gray-700 mb-1">Дата рождения</label>
+                                                    <label className="block text-sm font-medium text-gray-700 mb-1">Дата рождения*</label>
                                                     <input
                                                         type="date"
                                                         name="birthday"
@@ -367,13 +453,14 @@ export default function ResumePage() {
                                                 </div>
 
                                                 <div className="mb-4">
-                                                    <label className="block text-sm font-medium text-gray-700 mb-1">Пол</label>
+                                                    <label className="block text-sm font-medium text-gray-700 mb-1">Пол*</label>
                                                     <select
                                                         name="gender"
                                                         value={formData.gender || ''}
                                                         onChange={handleInputChange}
                                                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800"
                                                     >
+                                                        <option value="" disabled hidden>Выбрать пол</option>
                                                         <option value="Male">Мужской</option>
                                                         <option value="Female">Женский</option>
                                                     </select>
@@ -411,7 +498,9 @@ export default function ResumePage() {
                                                     </div>
                                                     <div>
                                                         <p className="text-sm text-gray-500">Пол</p>
-                                                        <p className="text-gray-900">{resume?.gender === 'Male' ? 'Мужской' : 'Женский'}</p>
+                                                        <p className="text-gray-900">
+                                                            {(resume?.gender === 'Female') ? 'Женский' : 'Мужской'}
+                                                        </p>
                                                     </div>
                                                     <div>
                                                         <p className="text-sm text-gray-500">Телефон</p>
@@ -437,7 +526,7 @@ export default function ResumePage() {
                                         {isEditing ? (
                                             <>
                                                 <div className="mb-4">
-                                                    <label className="block text-sm font-medium text-gray-700 mb-1">Уровень образования</label>
+                                                    <label className="block text-sm font-medium text-gray-700 mb-1">Уровень образования*</label>
                                                     <input
                                                         type="text"
                                                         name="education"
@@ -447,7 +536,7 @@ export default function ResumePage() {
                                                     />
                                                 </div>
                                                 <div className="mb-4">
-                                                    <label className="block text-sm font-medium text-gray-700 mb-1">Учебное заведение</label>
+                                                    <label className="block text-sm font-medium text-gray-700 mb-1">Учебное заведение*</label>
                                                     <input
                                                         type="text"
                                                         name="placeEducation"
@@ -521,6 +610,7 @@ export default function ResumePage() {
                                 </div>
 
                                 {/* Portfolio */}
+                                {!isCreating && (
                                 <div className="bg-white rounded-xl shadow-md overflow-hidden">
                                     <div className="p-6">
                                         <div className="flex justify-between items-center mb-4">
@@ -543,7 +633,7 @@ export default function ResumePage() {
                                                     {selectedImage && (
                                                         <button
                                                             onClick={handleImageUpload}
-                                                            disabled={images.length >= 10 || imageUploading}
+                                                            disabled={images.length >= 6 || imageUploading}
                                                             className="px-3 py-1 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 disabled:opacity-50"
                                                         >
                                                             {imageUploading ? 'Загрузка...' : 'Загрузить'}
@@ -553,7 +643,10 @@ export default function ResumePage() {
                                             )}
                                         </div>
 
-                                        {images.length > 0 ? (
+                                        {loadingImages ? (
+                                                <div className="text-center py-8 text-gray-500">Загрузка изображений...</div>
+                                            ) :
+                                        images.length > 0 ? (
                                             <>
                                                 <div className="flex overflow-x-auto pb-2 mb-4 gap-2">
                                                     {images.map((img, index) => (
@@ -603,7 +696,7 @@ export default function ResumePage() {
                                             </div>
                                         )}
                                     </div>
-                                </div>
+                                </div>)}
                             </div>
                         </div>
                     )}

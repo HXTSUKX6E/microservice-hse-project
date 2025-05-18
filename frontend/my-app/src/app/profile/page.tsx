@@ -8,6 +8,8 @@ import useRole from '@/app/hooks/useRole'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
+import TeenagerSidebar from "@/app/components/TeenagerSidebar"
+import EmployeeSidebar from "@/app/components/EmpoyeeSidebar"
 
 export default function ProfilePage() {
     const role = useRole()
@@ -198,6 +200,8 @@ export default function ProfilePage() {
                 <Header />
                 <div className="flex flex-1">
                     {role === 'Администратор' && <AdminSidebar />}
+                    {role === 'Пользователь' && <TeenagerSidebar />}
+                    {role === "Сотрудник" && <EmployeeSidebar />}
                     <main className="flex-1 max-w-4xl mx-auto py-10 px-4 sm:px-6 relative">
                         {/* Floating action button */}
                         <motion.div
