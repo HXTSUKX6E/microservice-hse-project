@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import axios from 'axios'
+import { motion, AnimatePresence } from 'framer-motion'
 
 export default function CreateVacancyPage() {
     const searchParams = useSearchParams()
@@ -23,9 +24,7 @@ export default function CreateVacancyPage() {
     const [success, setSuccess] = useState(false)
 
     useEffect(() => {
-        if (!companyId) {
-            setError('Не указана компания')
-        }
+        if (!companyId) setError('Не указана компания')
     }, [companyId])
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -43,18 +42,18 @@ export default function CreateVacancyPage() {
                 return
             }
 
-            const response = await axios.post(
+            await axios.post(
                 'http://localhost/api/comp-vac/vacancy',
                 {
                     ...vacancy,
                     company_id: Number(companyId),
-                    isHidden: true
+                    isHidden: true,
                 },
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
+                        'Content-Type': 'application/json',
+                    },
                 }
             )
 
@@ -81,184 +80,119 @@ export default function CreateVacancyPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-100 text-black">
-            <div className="max-w-4xl mx-auto py-8 px-4">
-                <div className="bg-white p-6 rounded-lg shadow-md">
-                    <h1 className="text-2xl font-bold mb-6">Создание новой вакансии</h1>
+        <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 py-10 px-4">
+            <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="max-w-4xl mx-auto bg-white shadow-xl rounded-2xl p-8"
+            >
+                <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">
+                    Создание новой вакансии
+                </h1>
 
+                <AnimatePresence>
                     {error && (
-                        <div className="bg-red-100 border border-red-400 text-black px-4 py-3 rounded mb-4">
+                        <motion.div
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0 }}
+                            className="bg-red-100 border border-red-400 text-red-800 px-4 py-3 rounded mb-4"
+                        >
                             {error}
-                        </div>
+                        </motion.div>
                     )}
+                </AnimatePresence>
 
+                <AnimatePresence>
                     {success && (
-                        <div className="bg-green-100 border border-green-400 text-black px-4 py-3 rounded mb-4">
+                        <motion.div
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0 }}
+                            className="bg-green-100 border border-green-400 text-green-800 px-4 py-3 rounded mb-4"
+                        >
                             Вакансия успешно создана!
-                        </div>
+                        </motion.div>
                     )}
+                </AnimatePresence>
 
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-2">
-                                <label className="block text-sm font-medium text-black">
-                                    Название вакансии*
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    {/* Двухколоночные поля */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {[
+                            { label: 'Название вакансии*', name: 'name', required: true },
+                            { label: 'Заголовок*', name: 'title', required: true },
+                            { label: 'Контактная информация*', name: 'contact', required: true },
+                            { label: 'Требуемый опыт', name: 'experience' },
+                            { label: 'Формат работы', name: 'format' },
+                            { label: 'Адрес', name: 'address' },
+                            { label: 'График работы', name: 'schedule' },
+                            { label: 'Заработная плата', name: 'hours' },
+                        ].map(({ label, name, required }) => (
+                            <div key={name} className="space-y-1">
+                                <label className="block text-sm font-medium text-gray-700">
+                                    {label}
                                 </label>
                                 <input
                                     type="text"
-                                    name="name"
-                                    value={vacancy.name}
+                                    name={name}
+                                    required={required}
+                                    value={(vacancy as any)[name]}
                                     onChange={handleChange}
-                                    className="w-full px-3 py-2 border rounded-md text-black bg-white"
-                                    required
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                                 />
                             </div>
+                        ))}
+                    </div>
 
-                            <div className="space-y-2">
-                                <label className="block text-sm font-medium text-black">
-                                    Заголовок*
-                                </label>
-                                <input
-                                    type="text"
-                                    name="title"
-                                    value={vacancy.title}
-                                    onChange={handleChange}
-                                    className="w-full px-3 py-2 border rounded-md text-black bg-white"
-                                    required
-                                />
-                            </div>
-                        </div>
+                    {/* Описание */}
+                    <div className="space-y-2">
+                        <label className="block text-sm font-medium text-gray-700">
+                            Описание (до 1000 символов)
+                        </label>
+                        <textarea
+                            name="description"
+                            rows={5}
+                            maxLength={1000}
+                            value={vacancy.description}
+                            onChange={handleChange}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                        />
+                    </div>
 
-                        <div className="space-y-2">
-                            <label className="block text-sm font-medium text-black">
-                                Описание (до 1000 символов)
-                            </label>
-                            <textarea
-                                name="description"
-                                value={vacancy.description}
-                                onChange={handleChange}
-                                rows={5}
-                                maxLength={1000}
-                                className="w-full px-3 py-2 border rounded-md text-black bg-white"
-                            />
-                        </div>
+                    {/* Чекбокс */}
+                    <div className="flex items-center space-x-2">
+                        <input
+                            type="checkbox"
+                            name="is_educated"
+                            checked={vacancy.is_educated}
+                            onChange={handleCheckboxChange}
+                            className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        />
+                        <label className="text-sm font-medium text-gray-700">
+                            Требуется обучение
+                        </label>
+                    </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-2">
-                                <label className="block text-sm font-medium text-black">
-                                    Контактная информация*
-                                </label>
-                                <input
-                                    type="text"
-                                    name="contact"
-                                    value={vacancy.contact}
-                                    onChange={handleChange}
-                                    className="w-full px-3 py-2 border rounded-md text-black bg-white"
-                                    required
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="block text-sm font-medium text-black">
-                                    Требуемый опыт
-                                </label>
-                                <input
-                                    type="text"
-                                    name="experience"
-                                    value={vacancy.experience}
-                                    onChange={handleChange}
-                                    className="w-full px-3 py-2 border rounded-md text-black bg-white"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-2">
-                                <label className="block text-sm font-medium text-black">
-                                    Формат работы
-                                </label>
-                                <input
-                                    type="text"
-                                    name="format"
-                                    value={vacancy.format}
-                                    onChange={handleChange}
-                                    className="w-full px-3 py-2 border rounded-md text-black bg-white"
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="block text-sm font-medium text-black">
-                                    Адрес
-                                </label>
-                                <input
-                                    type="text"
-                                    name="address"
-                                    value={vacancy.address}
-                                    onChange={handleChange}
-                                    className="w-full px-3 py-2 border rounded-md text-black bg-white"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-2">
-                                <label className="block text-sm font-medium text-black">
-                                    График работы
-                                </label>
-                                <input
-                                    type="text"
-                                    name="schedule"
-                                    value={vacancy.schedule}
-                                    onChange={handleChange}
-                                    className="w-full px-3 py-2 border rounded-md text-black bg-white"
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="block text-sm font-medium text-black">
-                                    Заработная плата
-                                </label>
-                                <input
-                                    type="text"
-                                    name="hours"
-                                    value={vacancy.hours}
-                                    onChange={handleChange}
-                                    className="w-full px-3 py-2 border rounded-md text-black bg-white"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="flex items-center space-x-2">
-                            <input
-                                type="checkbox"
-                                name="is_educated"
-                                checked={vacancy.is_educated}
-                                onChange={handleCheckboxChange}
-                                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                            />
-                            <label className="text-sm font-medium text-black">
-                                Требуется обучение
-                            </label>
-                        </div>
-
-                        <div className="flex justify-end space-x-4 pt-6">
-                            <button
-                                type="button"
-                                onClick={() => router.push(`/companies/${companyId}`)}
-                                className="px-4 py-2 border rounded-md hover:bg-gray-100"
-                            >
-                                Отмена
-                            </button>
-                            <button
-                                type="submit"
-                                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                            >
-                                Опубликовать вакансию
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+                    {/* Кнопки */}
+                    <div className="flex justify-end gap-4 pt-4">
+                        <button
+                            type="button"
+                            onClick={() => router.push(`/companies/${companyId}`)}
+                            className="px-4 py-2 border rounded-xl bg-white text-gray-700 hover:bg-gray-50 transition"
+                        >
+                            Отмена
+                        </button>
+                        <button
+                            type="submit"
+                            className="px-6 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition"
+                        >
+                            Опубликовать вакансию
+                        </button>
+                    </div>
+                </form>
+            </motion.div>
         </div>
     )
 }
