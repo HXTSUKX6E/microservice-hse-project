@@ -6,6 +6,7 @@ import net.javaguides.springboot.dto.CompanyOneDto;
 import net.javaguides.springboot.exception.ResourceNotFoundException;
 import net.javaguides.springboot.model.Company;
 import net.javaguides.springboot.repository.CompanyRepository;
+import net.javaguides.springboot.util.JwtUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,15 +22,24 @@ import java.util.concurrent.CompletableFuture;
 public class CompanyService {
 
     private final CompanyRepository companyRepository;
+    private final JwtUtil jwtUtil;
 
-    public CompanyService(CompanyRepository companyRepository) {
+    public CompanyService(CompanyRepository companyRepository,
+                          JwtUtil jwtUtil) {
         this.companyRepository = companyRepository;
+        this.jwtUtil = jwtUtil;
     }
 
     @Async
     public CompletableFuture<List<Company>> getAllCompanies() {
         log.info("service get all companies");
         return CompletableFuture.completedFuture(companyRepository.findAll());
+    }
+
+    @Async
+    public CompletableFuture<List<Company>> getMyCompanies(String token) {
+        String username = jwtUtil.extractUsername(token);
+        return CompletableFuture.completedFuture(companyRepository.findByUserName(username));
     }
 
     @Async
@@ -74,5 +84,38 @@ public class CompanyService {
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Компания успешно удалена!");
         return CompletableFuture.completedFuture(ResponseEntity.ok(response).getBody());
+    }
+
+    @Async
+    public CompletableFuture<Map<String, Object>> deleteMyCompany(Long id, String token) {
+        String username = jwtUtil.extractUsername(token);
+        Company company = companyRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Компания не найдена!"));
+        if (!company.getUserName().equals(username)) {
+            throw new RuntimeException("Нет доступа!");
+        }
+        companyRepository.delete(company);
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Компания успешно удалена!");
+        return CompletableFuture.completedFuture(ResponseEntity.ok(response).getBody());
+    }
+
+    @Async
+    public CompletableFuture<Company> updateMyCompany(Long id, Company companyDetails, String token) {
+        String username = jwtUtil.extractUsername(token);
+        Company company = companyRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Компания не найдена!"));
+        if (!company.getUserName().equals(username)) {
+            throw new RuntimeException("Нет доступа!");
+        }
+        if (company.getIs_accepted()) {
+            throw new ResourceNotFoundException("Компания верефицирована! Невозможно изменить информацию!");
+        }
+        companyDetails.setCompany_id(company.getCompany_id());
+        companyDetails.setVacancies(company.getVacancies());
+//        companyDetails.setIs_accepted(false);
+        companyDetails.setUserName(company.getUserName());
+
+        return CompletableFuture.completedFuture(companyRepository.save(companyDetails));
     }
 }

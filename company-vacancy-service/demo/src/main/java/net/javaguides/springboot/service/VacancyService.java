@@ -8,6 +8,7 @@ import net.javaguides.springboot.model.Company;
 import net.javaguides.springboot.model.Vacancy;
 import net.javaguides.springboot.repository.CompanyRepository;
 import net.javaguides.springboot.repository.VacancyRepository;
+import net.javaguides.springboot.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
@@ -25,11 +26,13 @@ public class VacancyService {
 
     private final VacancyRepository vacancyRepository;
     private final CompanyRepository companyRepository;
+    private final JwtUtil jwtUtil;
 
     @Autowired
-    public VacancyService(VacancyRepository vacancyRepository, CompanyRepository companyRepository) {
+    public VacancyService(VacancyRepository vacancyRepository, CompanyRepository companyRepository, JwtUtil jwtUtil) {
         this.vacancyRepository = vacancyRepository;
         this.companyRepository = companyRepository;
+        this.jwtUtil = jwtUtil;
     }
 
     @Async
@@ -54,6 +57,13 @@ public class VacancyService {
     public CompletableFuture<List<Vacancy>> getAllVacancies() {
         log.info("service get all vacancies");
         return CompletableFuture.completedFuture(vacancyRepository.findByIsHiddenTrue());
+    }
+
+    @Async
+    public CompletableFuture<List<Vacancy>> getMyVacancies(String token) {
+        String username = jwtUtil.extractUsername(token);
+        log.info("service get my vacancies");
+        return CompletableFuture.completedFuture(vacancyRepository.findByCompany_userName(username));
     }
 
     @Async

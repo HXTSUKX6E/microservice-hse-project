@@ -15,4 +15,6 @@ public interface VacancyRepository extends JpaRepository<Vacancy, Long> {
 
     @Query("SELECT v FROM Vacancy v WHERE v.vacancy_id = :id AND v.isHidden = true")
     Optional<Vacancy> findByIdAndHidden(@Param("id") Long id);
+
+    List<Vacancy> findByCompany_userName(String username);
 }

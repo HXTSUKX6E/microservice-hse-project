@@ -44,6 +44,7 @@ public class CompanyController {
         return companyService.getAllCompanies().get();
     }
 
+
     // create a company
     @PreAuthorize("hasRole('ROLE_3') || hasRole('ROLE_1')")
     @PostMapping("/company")
@@ -79,4 +80,27 @@ public class CompanyController {
     public Map<String, Object> deleteCompany(@PathVariable Long id) throws ExecutionException, InterruptedException {
         return companyService.deleteCompany(id).get();
     }
+
+
+    @PreAuthorize("hasRole('ROLE_3')")
+    @GetMapping("/my-company")
+    public List<Company> getMyCompanies(@RequestHeader("Authorization") String authorizationHeader) throws ExecutionException, InterruptedException {
+        String token = authorizationHeader.replace("Bearer ", "").trim();
+        return companyService.getMyCompanies(token).get();
+    }
+
+    @PreAuthorize("hasRole('ROLE_3')")
+    @DeleteMapping("/my-company/{id}")
+    public Map<String, Object> deleteMyCompany(@PathVariable Long id, @RequestHeader("Authorization") String authorizationHeader) throws ExecutionException, InterruptedException {
+        String token = authorizationHeader.replace("Bearer ", "").trim();
+        return companyService.deleteMyCompany(id, token).get();
+    }
+
+    @PreAuthorize("hasRole('ROLE_3')")
+    @PutMapping("/my-company/{id}")
+    public Company updateMyCompany(@PathVariable Long id, @RequestBody @Valid Company company, @RequestHeader("Authorization") String authorizationHeader) throws ExecutionException, InterruptedException {
+        String token = authorizationHeader.replace("Bearer ", "").trim();
+        return companyService.updateMyCompany(id, company, token).get();
+    }
+
 }

@@ -38,6 +38,12 @@ public class VacancyController {
         return vacancyService.getAllVacancies().get();
     }
 
+    @GetMapping("/my-vacancy")
+    public List<Vacancy> getMyVacancies(@RequestHeader("Authorization") String authorizationHeader) throws ExecutionException, InterruptedException {
+        String token = authorizationHeader.replace("Bearer ", "").trim();
+        return vacancyService.getMyVacancies(token).get();
+    }
+
     // get all info about vacancies by admin
     @PreAuthorize("hasRole('ROLE_1')")
     @GetMapping("/admin/vacancy")
