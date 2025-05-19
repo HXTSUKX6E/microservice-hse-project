@@ -14,16 +14,25 @@ export default function EmpoyeeSidebar() {
                         className="flex items-center gap-3 p-3 hover:bg-blue-50 rounded-lg transition text-gray-800 font-medium hover:text-blue-600 pl-4"
                     >
                         <Briefcase className="w-5 h-5" />
-                        Вакансии
+                        Главная
                     </Link>
                 </li>
                 <li>
                     <Link
-                        href="/my-companies"
+                        href="/my-company"
                         className="flex items-center gap-3 p-3 hover:bg-blue-50 rounded-lg transition text-gray-800 font-medium hover:text-blue-600 pl-4"
                     >
                         <Briefcase className="w-5 h-5" />
-                        Мои объявления
+                        Мои компании
+                    </Link>
+                </li>
+                <li>
+                    <Link
+                        href="/my-vacancy"
+                        className="flex items-center gap-3 p-3 hover:bg-blue-50 rounded-lg transition text-gray-800 font-medium hover:text-blue-600 pl-4"
+                    >
+                        <Briefcase className="w-5 h-5" />
+                        Мои вакансии
                     </Link>
                 </li>
                 <li>

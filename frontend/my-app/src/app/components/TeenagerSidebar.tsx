@@ -14,7 +14,7 @@ export default function TeenagerSidebar() {
                         className="flex items-center gap-3 p-3 hover:bg-blue-50 rounded-lg transition text-gray-800 font-medium hover:text-blue-600 pl-4"
                     >
                         <Briefcase className="w-5 h-5" />
-                        Вакансии
+                        Главная
                     </Link>
                 </li>
                 <li>

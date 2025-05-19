@@ -57,7 +57,7 @@ export default function HomePage() {
         const fetchData = async () => {
             try {
                 const token = localStorage.getItem('token')
-                const response = await axios.get('http://localhost/api/comp-vac/vacancy', {
+                const response = await axios.get('http://localhost/api/comp-vac/my-vacancy', {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }

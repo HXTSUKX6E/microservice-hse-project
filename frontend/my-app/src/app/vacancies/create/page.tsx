@@ -131,7 +131,7 @@ export default function CreateVacancyPage() {
                             { label: 'Заработная плата', name: 'hours' },
                         ].map(({ label, name, required }) => (
                             <div key={name} className="space-y-1">
-                                <label className="block text-sm font-medium text-gray-700">
+                                <label className="block text-sm font-medium text-gray-900">
                                     {label}
                                 </label>
                                 <input
@@ -140,7 +140,7 @@ export default function CreateVacancyPage() {
                                     required={required}
                                     value={(vacancy as any)[name]}
                                     onChange={handleChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                    className="text-black w-full px-3 py-2 border border-gray-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                                 />
                             </div>
                         ))}
@@ -157,7 +157,7 @@ export default function CreateVacancyPage() {
                             maxLength={1000}
                             value={vacancy.description}
                             onChange={handleChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                            className="text-black w-full px-3 py-2 border border-gray-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                         />
                     </div>
 

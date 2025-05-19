@@ -9,7 +9,6 @@ import useRole from "@/app/hooks/useRole"
 import AdminSidebar from "@/app/components/AdminSidebar"
 import EmpoyeeSidebar from "@/app/components/EmpoyeeSidebar"
 import { motion, AnimatePresence } from 'framer-motion'
-import TeenagerSidebar from "@/app/components/TeenagerSidebar";
 
 type Company = {
     company_id: number
@@ -157,7 +156,7 @@ export default function CompanyPage() {
             }
 
             const response = await axios.put(
-                `http://localhost/api/comp-vac/company/${id}`,
+                `http://localhost/api/comp-vac/my-company/${id}`,
                 editData,
                 {
                     headers: {
@@ -187,9 +186,8 @@ export default function CompanyPage() {
             <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 flex flex-col">
                 <Header />
                 <div className="flex flex-1">
-                    {role === "Администратор" && <AdminSidebar />}
+                    {/*{role === "Администратор" && <AdminSidebar />}*/}
                     {role === "Сотрудник" && <EmpoyeeSidebar />}
-                    {role === "Пользователь" && <TeenagerSidebar />}
                     <main className="flex-1 max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
                         <div className="max-w-5xl mx-auto py-6 sm:px-6 lg:px-8">
                             {error ? (
@@ -280,7 +278,7 @@ export default function CompanyPage() {
                                             Назад
                                         </Link>
 
-                                        {(role === "Администратор" || role === "Работодатель") && (
+                                        {(role === "Сотрудник") && (
                                             <motion.div
                                                 className="relative inline-block z-10"
                                                 initial={{ opacity: 0 }}
@@ -323,6 +321,8 @@ export default function CompanyPage() {
                                                             transition={{ duration: 0.2 }}
                                                         >
                                                             <div className="py-1">
+                                                                {!company.is_accepted && (
+
                                                                 <motion.button
                                                                     onClick={() => {
                                                                         setEditMode(true);
@@ -332,7 +332,7 @@ export default function CompanyPage() {
                                                                     whileHover={{ x: 5 }}
                                                                 >
                                                                     Редактировать
-                                                                </motion.button>
+                                                                </motion.button>)}
                                                                 <motion.button
                                                                     onClick={() => {
                                                                         setShowDeleteModal(true);
@@ -379,26 +379,26 @@ export default function CompanyPage() {
                                                         {company.name}
                                                     </motion.h1>
                                                 )}
-                                                {role === "Администратор" && !company.is_accepted && (
-                                                    <motion.button
-                                                        onClick={handleVerify}
-                                                        disabled={statusLoading}
-                                                        className="px-4 py-2 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-lg hover:from-green-700 hover:to-green-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                                                        whileHover={{ scale: 1.05 }}
-                                                        whileTap={{ scale: 0.95 }}
-                                                    >
-                                                        {statusLoading ? (
-                                                            <span className="flex items-center">
-                                                                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                                </svg>
-                                                                Верификация...
-                                                            </span>
-                                                        ) : 'Верифицировать'}
-                                                    </motion.button>
-                                                )}
-                                                {role === "Администратор" && company.is_accepted && (
+                                                {/*{role === "Сотрудник" && !company.is_accepted && (*/}
+                                                {/*    <motion.button*/}
+                                                {/*        onClick={handleVerify}*/}
+                                                {/*        disabled={statusLoading}*/}
+                                                {/*        className="px-4 py-2 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-lg hover:from-green-700 hover:to-green-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"*/}
+                                                {/*        whileHover={{ scale: 1.05 }}*/}
+                                                {/*        whileTap={{ scale: 0.95 }}*/}
+                                                {/*    >*/}
+                                                {/*        {statusLoading ? (*/}
+                                                {/*            <span className="flex items-center">*/}
+                                                {/*                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">*/}
+                                                {/*                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>*/}
+                                                {/*                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>*/}
+                                                {/*                </svg>*/}
+                                                {/*                Верификация...*/}
+                                                {/*            </span>*/}
+                                                {/*        ) : 'Верифицировать'}*/}
+                                                {/*    </motion.button>*/}
+                                                {/*)}*/}
+                                                {role === "Сотрудник" && company.is_accepted && (
                                                     <motion.div
                                                         className="mb-4 flex justify-end"
                                                         initial={{ opacity: 0 }}

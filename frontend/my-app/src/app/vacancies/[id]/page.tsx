@@ -6,9 +6,10 @@ import Link from 'next/link'
 import { Header } from "@/app/components/Header";
 import AuthGuard from '@/app/components/AuthGuard'
 import AdminSidebar from "@/app/components/AdminSidebar";
+import EmpoyeeSidebar from "@/app/components/EmpoyeeSidebar";
 import useRole from "@/app/hooks/useRole";
 import { motion, AnimatePresence } from 'framer-motion';
-
+import TeenagerSidebar from "@/app/components/TeenagerSidebar"
 type Company = {
     company_id: number
     name: string
@@ -167,6 +168,9 @@ export default function VacancyPage() {
                 <div className="flex flex-1">
                     {/* Боковое меню для админа */}
                     {role === "Администратор" && <AdminSidebar />}
+                    {role === "Сотрудник" && <EmpoyeeSidebar />}
+                    {role === "Пользователь" && <TeenagerSidebar />}
+
                     <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8 w-full">
                         <motion.div
                             initial={{ opacity: 0, y: -20 }}
