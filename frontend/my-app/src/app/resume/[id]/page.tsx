@@ -71,6 +71,10 @@ export default function ResumePage() {
             return false
         }
 
+        if (!data.skills) {
+            toast.error('Заполните хотя бы 1 навык')
+            return false
+        }
 
         if (data.skills) {
             const skillsArray = data.skills.split(',').map(s => s.trim()).filter(Boolean)
@@ -482,6 +486,7 @@ export default function ResumePage() {
                                                     <input
                                                         type="email"
                                                         name="contact"
+                                                        disabled
                                                         value={formData.contact || ''}
                                                         onChange={handleInputChange}
                                                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800"
@@ -506,10 +511,10 @@ export default function ResumePage() {
                                                         <p className="text-sm text-gray-500">Телефон</p>
                                                         <p className="text-gray-900">{resume?.phone || 'Не указано'}</p>
                                                     </div>
-                                                    <div>
-                                                        <p className="text-sm text-gray-500">Email</p>
-                                                        <p className="text-gray-900">{resume?.contact || 'Не указано'}</p>
-                                                    </div>
+                                                    {/*<div>*/}
+                                                    {/*    <p className="text-sm text-gray-500">Email</p>*/}
+                                                    {/*    <p className="text-gray-900">{resume?.contact || 'Не указано'}</p>*/}
+                                                    {/*</div>*/}
                                                 </div>
                                             </>
                                         )}
@@ -573,16 +578,17 @@ export default function ResumePage() {
                                                     placeholder="Java, Spring, React, ..."
                                                 />
                                                 <p className="text-xs text-gray-500 mt-1">
-                                                    {formData.skills?.split(',').filter(s => s.trim()).length || 0}/10 навыков
+                                                    {formData.skills?.split(',').filter(s => s.trim()).length || 0 }/10 навыков
                                                 </p>
                                             </div>
                                         ) : (
+
                                             <div className="flex flex-wrap gap-2">
                                                 {resume?.skills?.split(',').filter(s => s.trim()).map((skill, index) => (
                                                     <span key={index} className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
                             {skill.trim()}
                           </span>
-                                                ))}
+                                                )) || 'Не указано'}
                                             </div>
                                         )}
                                     </div>
@@ -604,7 +610,7 @@ export default function ResumePage() {
                                                 />
                                             </div>
                                         ) : (
-                                            <p className="text-gray-700 whitespace-pre-line">{resume?.description}</p>
+                                            <p className="text-gray-700 whitespace-pre-line">{resume?.description || 'Не указано'}</p>
                                         )}
                                     </div>
                                 </div>
