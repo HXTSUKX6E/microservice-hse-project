@@ -11,9 +11,11 @@ import net.javaguides.springboot.service.AuthService;
 import net.javaguides.springboot.service.ResumeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -40,6 +42,12 @@ public class ResumeController {
     @GetMapping("/resume/{id}")
     public Resume getResume(@PathVariable Long id) throws ExecutionException, InterruptedException {
         return resumeService.getResume(id).get();
+    }
+
+    @PreAuthorize("hasRole('ROLE_3') || hasRole('ROLE_1')")
+    @GetMapping("/resume")
+    public List<Resume> getAllResume() throws ExecutionException, InterruptedException {
+        return resumeService.getAllResume().get();
     }
 
     @PutMapping("/resume/{id}")

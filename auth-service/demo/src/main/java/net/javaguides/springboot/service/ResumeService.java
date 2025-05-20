@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Console;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -54,7 +55,7 @@ public class ResumeService {
         }
 
         Resume resume = new Resume();
-
+        resume.setContact(user.getLogin());
         setResume(request, resume);
         // Устанавливаем двунаправленную связь
         resume.setUser(user);
@@ -70,6 +71,11 @@ public class ResumeService {
                 .orElseThrow(() -> new ResourceNotFoundException("У пользователя нет резюме!"));
 
         return CompletableFuture.completedFuture(resume);
+    }
+
+    @Async
+    public CompletableFuture<List<Resume>> getAllResume() {
+        return CompletableFuture.completedFuture(resumeRepository.findAll());
     }
 
     @Async
