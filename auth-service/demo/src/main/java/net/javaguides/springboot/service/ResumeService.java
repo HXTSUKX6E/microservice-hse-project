@@ -55,8 +55,8 @@ public class ResumeService {
         }
 
         Resume resume = new Resume();
-        resume.setContact(user.getLogin());
         setResume(request, resume);
+        resume.setContact(user.getLogin());
         // Устанавливаем двунаправленную связь
         resume.setUser(user);
         user.setResume(resume);
