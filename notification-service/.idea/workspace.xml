@@ -5,24 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cec22246-d7c5-4b7e-b2b7-e63597192da5" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../auth-service/demo/src/main/java/net/javaguides/springboot/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/../auth-service/demo/src/main/java/net/javaguides/springboot/config/SecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../auth-service/demo/src/main/java/net/javaguides/springboot/controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../auth-service/demo/src/main/java/net/javaguides/springboot/controller/AuthController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../auth-service/demo/src/main/java/net/javaguides/springboot/service/AuthService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../auth-service/demo/src/main/java/net/javaguides/springboot/service/AuthService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../auth-service/demo/src/main/java/net/javaguides/springboot/service/DataInitializer.java" beforeDir="false" afterPath="$PROJECT_DIR$/../auth-service/demo/src/main/java/net/javaguides/springboot/service/DataInitializer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../company-vacancy-service/demo/src/main/java/net/javaguides/springboot/controller/CompanyController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../company-vacancy-service/demo/src/main/java/net/javaguides/springboot/controller/CompanyController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../company-vacancy-service/demo/src/main/java/net/javaguides/springboot/model/Company.java" beforeDir="false" afterPath="$PROJECT_DIR$/../company-vacancy-service/demo/src/main/java/net/javaguides/springboot/model/Company.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../company-vacancy-service/demo/src/main/java/net/javaguides/springboot/model/Response.java" beforeDir="false" afterPath="$PROJECT_DIR$/../company-vacancy-service/demo/src/main/java/net/javaguides/springboot/model/Response.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../company-vacancy-service/demo/src/main/java/net/javaguides/springboot/model/Vacancy.java" beforeDir="false" afterPath="$PROJECT_DIR$/../company-vacancy-service/demo/src/main/java/net/javaguides/springboot/model/Vacancy.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../company-vacancy-service/demo/src/main/java/net/javaguides/springboot/service/CompanyService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../company-vacancy-service/demo/src/main/java/net/javaguides/springboot/service/CompanyService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../company-vacancy-service/demo/src/main/java/net/javaguides/springboot/service/VacancyService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../company-vacancy-service/demo/src/main/java/net/javaguides/springboot/service/VacancyService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/my-app/src/app/companies/[id]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/my-app/src/app/companies/[id]/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/my-app/src/app/components/AuthGuard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/my-app/src/app/components/AuthGuard.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/my-app/src/app/components/Header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/my-app/src/app/components/Header.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/my-app/src/app/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/my-app/src/app/layout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/my-app/src/app/main/main-page/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/my-app/src/app/main/main-page/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../frontend/my-app/src/app/vacancies/[id]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/my-app/src/app/vacancies/[id]/page.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/demo/src/main/java/com/example/demo/service/EmailService.java" beforeDir="false" afterPath="$PROJECT_DIR$/demo/src/main/java/com/example/demo/service/EmailService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -60,7 +44,7 @@
     "git-widget-placeholder": "main",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "G:/Projects/microservices-project/frontend",
+    "last_opened_file_path": "G:/Projects/microservices-project/auth-service",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -112,6 +96,9 @@
       <workItem from="1746845673174" duration="181000" />
       <workItem from="1746952416143" duration="579000" />
       <workItem from="1746953320809" duration="611000" />
+      <workItem from="1747007557038" duration="1763000" />
+      <workItem from="1747193799118" duration="854000" />
+      <workItem from="1747217277797" duration="6000" />
     </task>
     <servers />
   </component>
